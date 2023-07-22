@@ -98,13 +98,14 @@ def flood_fill(current):
         ns = get_ns(front)
         available_ns=[]
         for num in ns:
-            if num[0] not in walls[front]:
+            if num[0] not in discovered_walls[front]:
                 available_ns.append(num)
         if known:
             min_md_data = get_min_md(available_ns)
             known=0
         else:
-            min_md_data = get_min_md(ns)
+            min_md_data = get_min_md(available_ns)
+        # print("Inside FF:",front,available_ns,"  MD:",get_md(front))    
         if get_md(front)<=min_md_data[0] :
             change_md(front,min_md_data[0])
             for i in available_ns:
@@ -217,11 +218,18 @@ direction="s"
 reached=0
 for i in range(10):
     current=start
+
+    path = []
+
     while(True):
-        #print ( "\n".join(list(map(str,md))))   
-        print(current)
+        #print ( "\n".join(list(map(str,md))))  
+        
+        path.append(str(current))
+
         if get_md(current)==0:
+            print(" ".join(path))
             break 
+
         neighbor_squares= get_ns(current)
         available_neighbor_squares=[]
         for num in neighbor_squares:
@@ -232,29 +240,16 @@ for i in range(10):
                 discovered_walls[current].append(num[0])
                 
         minimum_md = get_min_md(available_neighbor_squares)
+        
 
         if get_md(current)>minimum_md[0]:
             current = minimum_md[1][0][0]
-            
+        
         else:
             #print ( "\n".join(list(map(str,md)))+"\n")
             flood_fill(current)
             #print ( "\n".join(list(map(str,md)))+"\n")
         
-        print("\n")
-
-            
-  
+        # print("\n")
     
 print ( "\n".join(list(map(str,md)))+"\n")  
-
-
-
-
-
-
-
-
-
-
-
