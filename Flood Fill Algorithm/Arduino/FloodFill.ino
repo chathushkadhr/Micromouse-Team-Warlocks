@@ -173,7 +173,7 @@ void get_neighbours(int pos){
     neighbours_length=i;
 }
 
-void initialize_maze(){
+void initialize_final_maze(){
     for (int i = 0; i < total; i++){
         for (int j = 0; j < 3; j++)
             maze[i][j] = -1;
@@ -341,7 +341,7 @@ void flood_fill(int current){
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
-  initialize_maze(); // initialize empty 2D array for the maze
+  initialize_final_maze(); // initialize empty 2D array for the maze
   
   // get_neighbours(29);
   // get_available_neighbours(29);

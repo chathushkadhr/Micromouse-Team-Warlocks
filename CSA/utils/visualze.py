@@ -2,8 +2,8 @@ import tkinter as tk
 from tkinter import simpledialog
 
 
-CELL_SIZE=100
-GRID_SIZE = 6
+CELL_SIZE=50
+GRID_SIZE = 10
 WALL_COUNT=GRID_SIZE+1
 WALL_WIDTH=10
 
