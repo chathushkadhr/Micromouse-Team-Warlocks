@@ -78,8 +78,10 @@ int q_size = 0;
 
 int index_ = 0;
 int path[10000];
+int shortest_path[TOTAL];
 int filtered_path[TOTAL];
-int filtered_size = 0;
+int shortest_path_size = TOTAL;
+int filtered_path_size = 0;
 
 void push_button_isr()
 {
@@ -464,41 +466,41 @@ int get_turning_direction(int cur_dir, int new_dir)
     }
 }
 
-void followPath()
+void filterPath()
 {
 
-    filtered_size = 0;
+    filtered_path_size = 0;
     for (int i = 0; i < index_; ++i)
     {
         bool found = false;
-        for (int j = 0; j < filtered_size; ++j)
+        for (int j = 0; j < filtered_path_size; ++j)
         {
             if (path[i] == filtered_path[j])
             {
                 found = true;
-                filtered_size = j + 1;
+                filtered_path_size = j + 1;
                 break;
             }
         }
 
         if (!found)
         {
-            filtered_path[filtered_size] = path[i];
-            filtered_size++;
+            filtered_path[filtered_path_size] = path[i];
+            filtered_path_size++;
         }
     }
     Serial.println("Done");
 
     // Output the filtered array to the Serial Monitor
     Serial.println("Filtered Array:");
-    for (int i = 0; i < filtered_size; i++)
+    for (int i = 0; i < filtered_path_size; i++)
     {
         Serial.print(filtered_path[i]);
         Serial.print(" ");
     }
     Serial.println();
 
-    for (int i = filtered_size - 2; i > -1; i--)
+    for (int i = filtered_path_size - 2; i > -1; i--)
     {
         get_neighbours(current_cell);
         for (int yy = 0; yy < neighbours_length; yy++)
@@ -538,31 +540,31 @@ void followPath()
 
 void followPath2()
 {
-    filtered_size = 0;
+    filtered_path_size = 0;
     for (int i = 0; i < index_; ++i)
     {
         bool found = false;
-        for (int j = 0; j < filtered_size; ++j)
+        for (int j = 0; j < filtered_path_size; ++j)
         {
             if (path[i] == filtered_path[j])
             {
                 found = true;
-                filtered_size = j + 1;
+                filtered_path_size = j + 1;
                 break;
             }
         }
 
         if (!found)
         {
-            filtered_path[filtered_size] = path[i];
-            filtered_size++;
+            filtered_path[filtered_path_size] = path[i];
+            filtered_path_size++;
         }
     }
     Serial.println("Done");
 
     // Output the filtered array to the Serial Monitor
     Serial.println("Filtered Array:");
-    for (int i = 0; i < filtered_size; i++)
+    for (int i = 0; i < filtered_path_size; i++)
     {
         Serial.print(filtered_path[i]);
         Serial.print(" ");
@@ -571,7 +573,7 @@ void followPath2()
 
     int commands_length = 0;
     // calculations
-    for (int i = filtered_size - 2; i > -1; i--)
+    for (int i = filtered_path_size - 2; i > -1; i--)
     {
         get_neighbours(current_cell);
         for (int yy = 0; yy < neighbours_length; yy++)
@@ -736,6 +738,21 @@ void backToStart()
         Serial.print(" ");
     }
     Serial.println();
+
+    filterPath();
+    if (filtered_path_size < shortest_path_size)
+    {
+        shortest_path_size = filtered_path_size;
+        Serial.println("New shortest path");
+        for (int j = 0; j < filtered_path_size; j++)
+        {
+            shortest_path[j] = filtered_path[filtered_path_size-j-1];
+            Serial.print(shortest_path[j]);
+            Serial.print(" ");
+        }
+    }
+   
+    Serial.println();
 }
 
 void startMouse()
@@ -828,7 +845,23 @@ void startMouse()
             Serial.print(path[j]);
             Serial.print(" ");
         }
+
         Serial.println();
+        // update shortest path
+
+        filterPath();
+        if(filtered_path_size<shortest_path_size){
+            shortest_path_size = filtered_path_size;
+            Serial.println("New shortest path");
+            for (int j = 0; j < filtered_path_size;j++){
+                shortest_path[j] = filtered_path[j];
+                Serial.print(shortest_path[j]);
+                Serial.print(" ");
+            }
+        }
+
+        Serial.println();
+
         backToStart();
         // followPath2();
 
@@ -850,6 +883,7 @@ void startMouse()
         // Serial.println(" ");
     }
 }
+
 
 void updateMD(int img_starting_cell, int img_starting_dir)
 {
