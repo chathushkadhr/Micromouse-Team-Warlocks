@@ -386,16 +386,16 @@ void backToStart(){
           prev_right = (r1<wall_thresh)||(r2<wall_thresh);
           
           if(l1<70 && l2<70){
-            goForwardspecificDistanceLeft();
+//            goForwardspecificDistanceLeft();
           }
           else if(r2<70 && r1<70){
-            goForwardspecificDistanceRight();
+//            goForwardspecificDistanceRight();
           }
           else if(l1>150 && l2>150 && r1>70 && r2>70 ){
-            goForwardspecificDistanceRight();
+//            goForwardspecificDistanceRight();
           }
           else if(r1>150 && r2>150 && l1>70 && l2>70){
-            goForwardspecificDistanceLeft();
+//            goForwardspecificDistanceLeft();
           }
           else {
             goCell();

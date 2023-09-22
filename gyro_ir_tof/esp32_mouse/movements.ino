@@ -46,8 +46,8 @@
     delay(200);     
 //  breakNow();
     float r1 = readTOF(rightTOF1),r2 = readTOF(rightTOF2),l1 =readTOF(leftTOF1), l2 = readTOF(leftTOF2);
-    if(l1<wall_thresh && l2<wall_thresh){align(1);}
-    else if(r1<wall_thresh && r2<wall_thresh){align(0);} 
+    if(l1<wall_thresh && l2<wall_thresh){align();}
+    else if(r1<wall_thresh && r2<wall_thresh){align();} 
     adjustFrontDistance();
  }
 
@@ -163,15 +163,15 @@ void turn90(int dir){
     }
     
     float r1 = readTOF(rightTOF1),r2 = readTOF(rightTOF2),l1 =readTOF(leftTOF1), l2 = readTOF(leftTOF2);
-    if(l1<wall_thresh && l2<wall_thresh){align(1);}
-    else if(r1<wall_thresh && r2<wall_thresh){align(0);}
+    if(l1<wall_thresh && l2<wall_thresh){align();}
+    else if(r1<wall_thresh && r2<wall_thresh){align();}
     else{mpu.update();globle_theta= mpu.getAngleZ(); }
 
 }
 
 void breakNow(){
   int dir = 1;
-  int breakCount = 2;
+  int breakCount = 100;
   int right_dir,left_dir;
   if(dir==1){right_dir = 1,left_dir = 1;}
   else{right_dir = -1,left_dir = -1;}
@@ -182,10 +182,11 @@ void breakNow(){
     count1 = 0;count2=0;
     float error1 = right_dir*breakCount, error2 = left_dir*breakCount;
 
-    while(abs(error1)>0.1 || abs(error2)>0.1 ){
+    while(abs(error1)>1 || abs(error2)>1 ){
+    while(abs(error1)>1 || abs(error2)>1 ){
       mpu.update();
-      float turn_speed_f1 = midpwm  + kp_cell*abs(error1) + kd_cell*1000*(error1 - pre_error1) ;
-      float turn_speed_f2 = midpwm - r + kp_cell*abs(error2) + kd_cell*1000*(error2 - pre_error2);
+      float turn_speed_f1 = midpwm  + kp_cell*abs(error1) + kd_cell*(error1 - pre_error1) ;
+      float turn_speed_f2 = midpwm - r + kp_cell*abs(error2) + kd_cell*(error2 - pre_error2);
       if (turn_speed_f1 < minpwm){turn_speed1 = minpwm;}else if(turn_speed_f1 > maxpwm){turn_speed1 = maxpwm;}else{turn_speed1 = (int)turn_speed_f1;}
       if (turn_speed_f2 < minpwm){turn_speed2 = minpwm - r;}else if(turn_speed_f2 > maxpwm){turn_speed2 = maxpwm - r;}else{turn_speed2 = (int)turn_speed_f2;}
       
@@ -220,12 +221,12 @@ void breakNow(){
 
       pre_error2 = error2;
       tot_error2 += error2;
-      error2 = (left_dir*breakCount - count2);
-
-      
-      
+      error2 = (left_dir*breakCount - count2);  
     }
-
+    delay(10); 
+    error1 = (right_dir*breakCount - count1);
+    error2 = (left_dir*breakCount - count2); 
+    }
     ledcWrite(PWMm1a,0);
     ledcWrite(PWMm1b,0);
     ledcWrite(PWMm2a,0);
@@ -316,74 +317,62 @@ void goCellTOF(){
   
  }
 
-  void align(int d){
-    //d=1 for left, d=0 for right
+  void align(){
     
-   float error ;
-   if(d==1){
-       error = readTOF(leftTOF1)-readTOF(leftTOF2);
-//       kp_align=3;kd_align=10 ;ki_align=0; //SLIIT 2,1
-       //5 //5 //0
+   float error = 0;
+   int d = 0;
+   
+   float l1=readTOF(leftTOF1);delay(2);float l2=readTOF(leftTOF2);delay(2);
+   if(l1>wall_thresh || l2>wall_thresh){
+      float r1=readTOF(rightTOF1);delay(2); float r2=readTOF(rightTOF2);delay(2);
+      if(r1>wall_thresh || r2>wall_thresh){
+        ledcWrite(PWMm1a,0);
+        ledcWrite(PWMm1b,0);
+        ledcWrite(PWMm2a,0);
+        ledcWrite(PWMm2b,0);
+        delay(10);         
+        return;
       }
-    else{
-      error = readTOF(rightTOF2) -readTOF(rightTOF1);
-//      kp_align=3;kd_align=10 ;ki_align=0;
-      //5 //8 //0
-      
+      else{
+        d = 0;
+        error = r2-r1;
       }
-  
-    
+   }
+   else{
+    d = 1;
+    error = l1-l2;
+   }
+ 
+
+   
+
     float prevError = 0;
     float totalError = 0;
-    bool isPos = false;
-
-    if (error>=0){isPos = true;}
-
+ 
     while ((abs(error)>3)){
-      
-   
       while(abs(error)>3){
-  
-         if ((isPos && error<0)||(!isPos && error>=0)){totalError=0;}
-          
-         totalError +=error;
         
-         float Pterm = error*kp_align;
-         float Dterm = (error - prevError)*kd_align;
-         float Iterm =  totalError*ki_align;
+         int velocity =  error*kp_align + (error - prevError)*kd_align;
   
-         float pidVal = Pterm + Dterm + Iterm;
-         int velocity = (int) pidVal;
-  
-         if (velocity>=maxSpeed){
-            velocity=maxSpeed;
-            delay(2); 
-          }
-        else if (velocity<=-1*maxSpeed){
-            velocity=-1*maxSpeed;
-            delay(2); 
-          }
-  
-        //int shifted= ((abs(velocity)*(600-300))/600)+300;
-//        float shiftedR = map(abs(velocity),0,maxSpeed,230,400);
-//        float shiftedL = map(abs(velocity),0,maxSpeed,230,400);
-        float shiftedR = map(abs(velocity),0,maxSpeed,210,500);
-        float shiftedL = map(abs(velocity),0,maxSpeed + 80,210,500);
-        
-        if (velocity>=0){
-          ledcWrite(PWMm1a,0);
-          ledcWrite(PWMm1b,shiftedR);
-          ledcWrite(PWMm2a,shiftedL);
-          ledcWrite(PWMm2b,0);
-          delay(2); 
-          }
-        else{
-          ledcWrite(PWMm1a,shiftedR);
+         if (velocity < -1*maxpwm){velocity = -1*maxpwm;}else if(velocity > maxpwm){velocity = maxpwm;}else{velocity = (int)velocity;}
+         if(velocity!=0){
+          if (abs(velocity)<210){velocity = 210 * velocity/abs(velocity); velocity = (int)velocity;}
+         }
+
+        if (velocity<0){
+          ledcWrite(PWMm1a,abs(velocity));
           ledcWrite(PWMm1b,0);
           ledcWrite(PWMm2a,0);
-          ledcWrite(PWMm2b,shiftedL);
+          ledcWrite(PWMm2b,abs(velocity));
+          delay(2); 
+        }
+        else{
+          ledcWrite(PWMm1a,0);
+          ledcWrite(PWMm1b,abs(velocity));
+          ledcWrite(PWMm2a,abs(velocity));
+          ledcWrite(PWMm2b,0);
           delay(2);
-          }
+        }
   
         prevError = error;   
            if(d==1){
@@ -392,198 +381,32 @@ void goCellTOF(){
            else{
               error = readTOF(rightTOF2)-readTOF(rightTOF1);
            }
-  //      SerialBT.print(error);
-  //      SerialBT.print(" ");
-  //      SerialBT.println(shifted);
       }
      
      ledcWrite(PWMm1a,0);
      ledcWrite(PWMm1b,0);
      ledcWrite(PWMm2a,0);
      ledcWrite(PWMm2b,0); 
-     delay(50);
+     delay(5);
+     
       if(d==1){
-         error = readTOF(leftTOF1)-readTOF(leftTOF2);
+         float l1= readTOF(leftTOF1);delay(2);
+         float l2= readTOF(leftTOF2);delay(2);
+         error = l1-l2;
       }
       else{
-        error = readTOF(rightTOF2) -readTOF(rightTOF1);
+         float r1= readTOF(rightTOF1);delay(2);
+         float r2= readTOF(rightTOF2);delay(2);
+        error = r2-r1;
       }
-  }
-//  //Printing error################
-//  if(d==1){
-//         error = readTOF(leftTOF1)-readTOF(leftTOF2);
-//      }
-//      else{
-//        error = readTOF(rightTOF2) -readTOF(rightTOF1);
-//      }
-//    SerialBT.println(error);
-    //############################
+    } 
+
     mpu.update();
     globle_theta=mpu.getAngleZ();
 }
 
 
-void goForwardspecificDistanceLeft() {
-  firstCount = 220;
-  kpcell = 2;
-  kdcell = 0;
-  ktof = 2;
-  int secondCount=0;
-  count1 = 0;
-  count2 = 0;
-  int mid_Speed = midpwm;
-  int min_pwm = minpwm;
-  int max_pwm = maxpwm;
-  int totalCount = firstCount + secondCount;
-  int rightMotorSpeed,leftMotorSpeed,decreaseSpeed;
-  
-  float previousError = 0;
-  float enError;
-  //k_tof=0.35;
-  while ((count1 + count2) / 2 < totalCount) {
 
-    //enError = count1-count2;
-    double t1 = readTOF(leftTOF1);
-    double t2 = readTOF(leftTOF2);
-
-    enError =0;
-
-    if (t1<150 && t2<150){
-         enError = (t2-t1)/10 ;
-         if (t2<65){
-          enError +=(6.5- t2/10)*ktof; 
-          }
-      }
-
-    
-    
-    
-    int motorSpeed = enError * kpcell  + (enError - previousError) * kdcell;
-    previousError = enError;
-    //OLED(0, 0, 1);
-
-    if ((count1 + count2) / 2 < firstCount) {
-      rightMotorSpeed = constrain((mid_Speed - motorSpeed), min_pwm, max_pwm);
-      leftMotorSpeed  = constrain((mid_Speed + motorSpeed), min_pwm, max_pwm);
-    } else {
-      //minSpeed = 50;
-      decreaseSpeed = map((count1 + count2) / 2, firstCount, totalCount, mid_Speed, min_pwm);
-      rightMotorSpeed = constrain((decreaseSpeed - motorSpeed), min_pwm, 2 * decreaseSpeed - min_pwm);
-      leftMotorSpeed  = constrain((decreaseSpeed + motorSpeed), min_pwm, 2 * decreaseSpeed - min_pwm);
-    }
-    ledcWrite(PWMm1a,0);
-    ledcWrite(PWMm1b,rightMotorSpeed);
-    ledcWrite(PWMm2a,0);
-    ledcWrite(PWMm2b,leftMotorSpeed);
-
-    float f = (readTOF(frontTOF));
-
-    if (f<66){
-      ledcWrite(PWMm1a,0);
-      ledcWrite(PWMm1b,0);
-      ledcWrite(PWMm2a,0);
-      ledcWrite(PWMm2b,0);
-      delay(10); 
-      breakNow();
-      break;
-    }
-
-  }
-    ledcWrite(PWMm1a,0);
-    ledcWrite(PWMm1b,0);
-    ledcWrite(PWMm2a,0);
-    ledcWrite(PWMm2b,0);
-    delay(200);
-       float r1 = readTOF(rightTOF1),r2 = readTOF(rightTOF2),l1 =readTOF(leftTOF1), l2 = readTOF(leftTOF2);
-    if(l1<wall_thresh && l2<wall_thresh){align(1);}
-    else if(r1<wall_thresh && r2<wall_thresh){align(0);}
-    
-    adjustFrontDistance();
-    
-
-    
-}
-
-void goForwardspecificDistanceRight() {
-  firstCount = 205;
-  kpcell = 4;
-  kdcell = 0;
-  ktof = 2;
-  int secondCount=0;
-  count1 = 0;
-  count2 = 0;
-  int mid_Speed = midpwm;
-  int min_pwm = midpwm;
-  int max_pwm = maxpwm;
-  int totalCount = firstCount + secondCount;
-  int rightMotorSpeed,leftMotorSpeed,decreaseSpeed;
-  
-  float previousError = 0;
-  float enError;
-//  k_tof=0.45;
-  while ((count1 + count2) / 2 < totalCount) {
-
-    //enError = count1-count2;
-    double t1 = readTOF(rightTOF1);
-    double t2 = readTOF(rightTOF2);
-
-    enError =0;
-
-    if (t1<150 && t2<150){
-         enError = (t1-t2)/10 ;
-         if (t2<65){
-          enError -=(6.5 - t2/10)*ktof; 
-          }
-      }
-
-    
-    
-    
-    int motorSpeed = enError * kpcell  + (enError - previousError) * kdcell;
-    previousError = enError;
-    //OLED(0, 0, 1);
-
-    if ((count1 + count2) / 2 < firstCount) {
-      rightMotorSpeed = constrain((mid_Speed - motorSpeed), min_pwm, max_pwm);
-      leftMotorSpeed  = constrain((mid_Speed + motorSpeed), min_pwm, max_pwm);
-    } else {
-      //minSpeed = 50;
-      decreaseSpeed = map((count1 + count2) / 2, firstCount, totalCount, midSpeed, minpwm);
-      rightMotorSpeed = constrain((decreaseSpeed - motorSpeed), min_pwm, 2 * decreaseSpeed - min_pwm);
-      leftMotorSpeed  = constrain((decreaseSpeed + motorSpeed), min_pwm, 2 * decreaseSpeed - min_pwm);
-    }
-    ledcWrite(PWMm1a,0);
-    ledcWrite(PWMm1b,rightMotorSpeed);
-    ledcWrite(PWMm2a,0);
-    ledcWrite(PWMm2b,leftMotorSpeed);
-
-    float f = (readTOF(frontTOF));
-    if (f<66){
-      ledcWrite(PWMm1a,0);
-      ledcWrite(PWMm1b,0);
-      ledcWrite(PWMm2a,0);
-      ledcWrite(PWMm2b,0);
-      delay(10); 
-      breakNow();
-      break;
-    }    
-
-  }
-
-  
-    ledcWrite(PWMm1a,0);
-    ledcWrite(PWMm1b,0);
-    ledcWrite(PWMm2a,0);
-    ledcWrite(PWMm2b,0);
-    delay(200);
-    float r1 = readTOF(rightTOF1),r2 = readTOF(rightTOF2),l1 =readTOF(leftTOF1), l2 = readTOF(leftTOF2);
-    if(l1<wall_thresh && l2<wall_thresh){align(1);}
-    else if(r1<wall_thresh && r2<wall_thresh){align(0);}
-    
-    adjustFrontDistance();
-
-    
-}
 
 void adjustFrontDistance(){
 
@@ -672,13 +495,13 @@ void adjustFrontDistance(){
        delay(100);
 
     float r1 = readTOF(rightTOF1),r2 = readTOF(rightTOF2),l1 =readTOF(leftTOF1), l2 = readTOF(leftTOF2);
-    if(l1<wall_thresh && l2<wall_thresh){align(1);}
-    else if(r1<wall_thresh && r2<wall_thresh){align(0);}
+    if(l1<wall_thresh && l2<wall_thresh){align();}
+    else if(r1<wall_thresh && r2<wall_thresh){align();}
  }
 
  void goCellDevel(){
   //
-  float kp_gyro =40, kd_gyro =80, k_tof =4;
+//  float kp_gyro =40, kd_gyro =80, k_tof =4;
 //  int cellCount =260;
   
   count1 = 0; count2 = 0;
@@ -722,7 +545,7 @@ void adjustFrontDistance(){
       }
     }
     
-     
+    if (abs(tof_error)<1){tof_error = 0;}
     
     mpu.update();
     float error = (mpu.getAngleZ() - globle_theta) + tof_error*k_tof ;
@@ -745,6 +568,10 @@ void adjustFrontDistance(){
 
     bool IR_left = readIR(leftIR)<IR_THRESH;
     bool IR_right = readIR(rightIR)<IR_THRESH;
+
+//    if ((IR_left^prev_l_ir)||(IR_right^prev_r_ir)){
+//      break;
+//    }
 
     
     
@@ -812,3 +639,56 @@ void adjustFrontDistance(){
 
 
  }
+
+
+ void breakNow2(){
+  count1 = 0;
+  count2 = 0;
+  
+  float error = breakCount - ((count1 + count2))/2;
+  float pre_error = 0;
+
+  while(true){
+    if(abs(error)< 2){break;}
+  
+    while(true){ 
+      if(abs(error)< 2){
+        ledcWrite(PWMm1a,0);
+        ledcWrite(PWMm1b,0);
+        ledcWrite(PWMm2a,0);
+        ledcWrite(PWMm2b,0);
+        delay(10);
+        break;
+      } 
+      
+      float motorSpeed =  kp_cell*error + kd_cell*(error - pre_error);
+    
+      if (motorSpeed < -1*maxpwm){motorSpeed = -1*maxpwm;}else if(motorSpeed > maxpwm){motorSpeed = maxpwm;}else{motorSpeed = (int)motorSpeed;}
+      if(motorSpeed!=0){
+        if (abs(motorSpeed)<minpwm){motorSpeed = minpwm * motorSpeed/abs(motorSpeed); motorSpeed = (int)motorSpeed;}
+      }
+    
+  
+      if (motorSpeed>0){
+        ledcWrite(PWMm1a,0);
+        ledcWrite(PWMm1b,motorSpeed);
+        ledcWrite(PWMm2a,0);
+        ledcWrite(PWMm2b,motorSpeed);
+        delay(2);
+      }
+      else{
+        ledcWrite(PWMm1a,motorSpeed);
+        ledcWrite(PWMm1b,0);
+        ledcWrite(PWMm2a,motorSpeed);
+        ledcWrite(PWMm2b,0);
+        delay(2);
+      }
+      pre_error = error;
+      error =  breakCount - ((count1 + count2))/2;   
+    }
+    error =  breakCount - ((count1 + count2))/2;  
+  }
+//  SerialBT.println("Cell count;");
+//  SerialBT.println((count1 + count2)/2);
+  
+}

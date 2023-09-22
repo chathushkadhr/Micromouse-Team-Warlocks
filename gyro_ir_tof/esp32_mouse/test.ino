@@ -1,3 +1,12 @@
+ void alignTest(){
+    SerialBT.println("Give value for kp:");
+    kp_align = BTreadFloat();
+
+    SerialBT.println("Give value for kd:");
+    kd_align = BTreadFloat();
+    align();
+    delay(1000);
+ }
   void IRtest(){
     float r=0;
       SerialBT.print("right : ");
@@ -12,13 +21,13 @@
   void cellRunTest(){
 //    SerialBT.println("Give value for cell count:");
 //    cellCount = BTreadInt();
-      SerialBT.println("Number of iterations");
-      it = BTreadInt();
+//      SerialBT.println("Number of iterations");
+//      it = BTreadInt();
 //      SerialBT.println("Give value for kp:");
-//    kp_front_tof = BTreadFloat();
-//
+//    kp_cell = BTreadFloat();
+//////
 //    SerialBT.println("Give value for kd:");
-//    kd_front_tof = BTreadFloat();
+//    kd_cell = BTreadFloat();
 //    SerialBT.println("Give value for k_tof:");
 //    k_tof = BTreadFloat();
 //      
@@ -28,12 +37,12 @@
 //    r = BTreadInt();
     mpu.update();
     globle_theta= mpu.getAngleZ();
-    blinkLED(1);
+//    blinkLED(1);
     for (int i=0;i<it;i++){
       goCellDevel();
     }
-    breakNow();
-    delay(1000);
+    breakNow2();
+    
  }
 
 void turnTest(){
@@ -85,35 +94,35 @@ void tofTest(){
   
   SerialBT.println("*");
 }
-
-void straightRunTest(){
-//     SerialBT.println("Give value for first count:");
-//    int firstCount = BTreadInt();
-//    SerialBT.println("Give value for second count:");
-//    int secondCount = BTreadInt();
-//    SerialBT.println("max speed:");
-//    maxSpeed = BTreadInt();
-//    SerialBT.println("min speed:");
-//    minpwm = BTreadInt();
-    SerialBT.println("Give count:");
-    firstCount = BTreadInt();
-//    SerialBT.println("Give value for kp:");
-//    kpcell = BTreadFloat();
-//    SerialBT.println("Give value for kd:");
-//    kdcell = BTreadFloat();
-//    SerialBT.println("Give value for ktof");
-//    ktof = BTreadFloat();
-    
-//    SerialBT.println("Give value for kd:");
-//    kd_cell = BTreadFloat();
-//    midSpeed = (maxSpeed+minpwm)/2;
-    blinkLED(2);
-//    goCellTOF();
-    goForwardspecificDistanceLeft();
-     SerialBT.println(count1);
-    SerialBT.println(count2);
-    
-}
+//
+//void straightRunTest(){
+////     SerialBT.println("Give value for first count:");
+////    int firstCount = BTreadInt();
+////    SerialBT.println("Give value for second count:");
+////    int secondCount = BTreadInt();
+////    SerialBT.println("max speed:");
+////    maxSpeed = BTreadInt();
+////    SerialBT.println("min speed:");
+////    minpwm = BTreadInt();
+//    SerialBT.println("Give count:");
+//    firstCount = BTreadInt();
+////    SerialBT.println("Give value for kp:");
+////    kpcell = BTreadFloat();
+////    SerialBT.println("Give value for kd:");
+////    kdcell = BTreadFloat();
+////    SerialBT.println("Give value for ktof");
+////    ktof = BTreadFloat();
+//    
+////    SerialBT.println("Give value for kd:");
+////    kd_cell = BTreadFloat();
+////    midSpeed = (maxSpeed+minpwm)/2;
+//    blinkLED(2);
+////    goCellTOF();
+//    goForwardspecificDistanceLeft();
+//     SerialBT.println(count1);
+//    SerialBT.println(count2);
+//    
+//}
   
 void blinkLED(int x){
   for(int j=0;j<x;j++){digitalWrite(2,HIGH);delay(1000);digitalWrite(2,LOW);delay(1000);}

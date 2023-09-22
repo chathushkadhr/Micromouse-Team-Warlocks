@@ -36,10 +36,6 @@
 #define buzzPin 2
 #define cellTone 1
 #define destinationTone 0
-/*
-    NOTE_C, NOTE_Cs, NOTE_D, NOTE_Eb, NOTE_E, NOTE_F, NOTE_Fs, 
-    NOTE_G, NOTE_Gs, NOTE_A, NOTE_Bb, NOTE_B, NOTE_MAX
-*/
 
 //pwm props
 const int PWMFreq = 1000;
@@ -64,12 +60,15 @@ volatile int count1=0; //right motor
 volatile int count2=0; //left motor
 
 //CELL RUN GYRO PARAMS
-float kp_gyro=40,kd_gyro=80; 
+float kp_gyro=40,kd_gyro=40; 
 float pre_error=0;
-int cellCount = 150;//280;
+int cellCount = 230; //150;
 int it = 1;
-float kp_cell=0.4,kd_cell=2;
 float k_tof = 4;
+
+//breakNow2 params
+float kp_cell=1.6,kd_cell=20;
+float breakCount = 50;
 
 //CELL RUN TOF PARAMS
 float kp_tof = 0;
@@ -91,7 +90,7 @@ float kd_gyro_turn = 2;
 int turnCount = 120;
 
 //ALIGN PARAMS
-float kp_align=2,kd_align=1 ,ki_align=0;
+float kp_align=8,kd_align=16 ,ki_align=0;
 int min_align=250,max_align=300;
 int tof_side;
 
@@ -109,6 +108,10 @@ BluetoothSerial SerialBT;
 bool prev_left = true;
 bool prev_right = true;
 
+//save previous IR
+bool prev_l_ir = true;
+bool prev_r_ir = true;
+
 //Save previous tof state
 bool prev_l = true;
 bool prev_r = false;
@@ -116,6 +119,7 @@ bool prev_r = false;
 //TOF wall following thresh
 float right_distance= 0;
 float left_distance= 0;
+
 //############################################
 #define DIM 10
 #define TOTAL DIM*DIM+1
@@ -197,7 +201,7 @@ int filtered_size = 0;
 
 
 
-//encoders
+//encoder interupt functions
 void IRAM_ATTR encoder1(){
   //Serial.println("INT1");
   if(digitalRead(en1b)==LOW){
@@ -228,30 +232,15 @@ void setup() {
 
   SerialBT.begin("ESP32_mouse");
   Serial.begin(9600);
-  // put your setup code here, to run once:
+  
+  // Motor driver pins
   pinMode(m1a,OUTPUT);
   pinMode(m1b,OUTPUT);
   pinMode(m2a,OUTPUT);
   pinMode(m2b,OUTPUT);
   pinMode(13,INPUT);
-  //SharpIR pins
-  pinMode(rightIR,INPUT);
-  pinMode(leftIR,INPUT);
-//  pinMode(leftIR2,INPUT);
- 
-  Wire.begin();
-  byte status = mpu.begin();
-//  Serial.print(F("MPU6050 status: "));
-//  Serial.println(status);
-  while (status != 0) { } // stop everything if could not connect to MPU6050
-//  Serial.println(F("Calculating offsets, do not move MPU6050"));
-  delay(1000);
-  mpu.calcOffsets(); // gyro and accelero
-//  Serial.println("Done!\n");
-  initTOFs();
-  SerialBT.println("init TOFs Done!\n");
 
-  //pwm attach motors
+  // pwm attach motors
   ledcSetup(PWMm1a, PWMFreq, PWMResolution);
   ledcAttachPin(m1a, PWMm1a);
   ledcSetup(PWMm1b, PWMFreq, PWMResolution);
@@ -260,11 +249,13 @@ void setup() {
   ledcAttachPin(m2a, PWMm2a);
   ledcSetup(PWMm2b, PWMFreq, PWMResolution);
   ledcAttachPin(m2b, PWMm2b);
-
-  //pwm attach buzzer
-    pinMode(buzzPin,OUTPUT);
-
-//  Serial.begin(9600);
+  
+  // SharpIR pins
+  pinMode(rightIR,INPUT);
+  pinMode(leftIR,INPUT);
+  
+  // buzzer
+  pinMode(buzzPin,OUTPUT);
 
   // Encoders
   pinMode(en1a,INPUT);
@@ -274,17 +265,42 @@ void setup() {
   attachInterrupt(en2a,encoder2,RISING);
   pinMode(en2b,INPUT);
 
-  definDestination();
-  initialize_maze();
-  fill_md(DESTINATION);
+  // MPU
+  Wire.begin();
+  byte status = mpu.begin();
+  //Serial.print(F("MPU6050 status: "));
+  //Serial.println(status);
+  while (status != 0) { } // stop everything if could not connect to MPU6050
+  
 
+  // Calibrate MPU
+  //Serial.println(F("Calculating offsets, do not move MPU6050"));
+  delay(1000);
+  mpu.calcOffsets(); // gyro and accelero
+  //Serial.println("Done!\n");
+
+  // Initializations of tof
+  initTOFs();
+  SerialBT.println("init TOFs Done!\n");
+
+  // Calibrate TOF
   calibTOFThresh() ;
-  blinkLED(1);
+
+
+
+
+//  definDestination();
+//  initialize_maze();
+//  fill_md(DESTINATION);
+
+  
+//  blinkLED(1);
   delay(2000);
   
 }
 
 void loop() {
+//  IRtest();
 //  double t = millis();
 //  while((millis()-t)<5000){
 //    delay(10);
@@ -294,12 +310,13 @@ void loop() {
 //    }
 //  }
 //  blinkLED(3);
-  startMouse();
+//  startMouse();
 //    delay(1000000);
 //  mpu.update();
 //  SerialBT.println(mpu.getAngleZ());
 //  turnTest();
-//  cellRunTest();
+  cellRunTest();
+//  alignTest();
 //  tofTest();
 //
 //  adjustFrontDistance();
