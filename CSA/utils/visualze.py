@@ -7,6 +7,11 @@ GRID_SIZE = 14
 WALL_COUNT=GRID_SIZE+1
 WALL_WIDTH=10
 
+# CELL_SIZE=60
+# GRID_SIZE = 10
+# WALL_COUNT=GRID_SIZE+1
+# WALL_WIDTH=10
+
 walls={}
 cells=[]
 
@@ -168,7 +173,7 @@ def draw_path():
     # inp_path="1,7,13,15,8,9,10,11,11,18,24,23,22"
     inp_path=simpledialog.askstring("","Enter Path")  
 
-    path=map(int,inp_path.split(','))
+    path=map(int,inp_path.split(' '))
 
     clear_path()
 

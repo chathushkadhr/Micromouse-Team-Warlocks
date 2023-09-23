@@ -1,10 +1,12 @@
-#define DIM 10
+#define DIM 14
 #define TOTAL DIM *DIM + 1
 #define CENTER DIM *(DIM - 1) / 2
 
-#define DESTINATION 54 // Up left corner cell of the destination
+#define DESTINATION CENTER // Up left corner cell of the destination
 
-#define PUSH_BUTTON_PIN 13
+#define PUSH_BUTTON1_PIN 13 // LEFT SEARCH INT
+#define PUSH_BUTTON2_PIN 14 // RIGHT FAST
+
 #define DEBOUNCE_DELAY 500
 
 /* dir:
@@ -35,10 +37,11 @@ bool commingBack = false;
 // int walls[TOTAL][4] =  {{0, 0, 0, 0},{2, 0, 0, 0},{1, 3, 0, 0},{2, 0, 0, 0},{10, 0, 0, 0},{11, 0, 0, 0},{0, 0, 0, 0},{8, 0, 0, 0},{7, 0, 0, 0},{15, 0, 0, 0},{16, 4, 0, 0},{5, 0, 0, 0},{0, 0, 0, 0},{19, 0, 0, 0},{15, 0, 0, 0},{14, 9, 0, 0},{10, 17, 0, 0},{16, 18, 23, 0},{17, 0, 0, 0},{13, 0, 0, 0},{21, 0, 0, 0},{20, 27, 0, 0},{28, 0, 0, 0},{29, 17, 0, 0},{0, 0, 0, 0},{26,0, 0, 0},{25, 27, 0, 0},{26, 21, 0, 0},{22, 34, 0, 0},{23, 30, 0, 0},{29, 0, 0, 0},{32, 0, 0, 0},{31, 0, 0, 0},{0,0, 0, 0},{28, 35, 0, 0},{34, 0, 0, 0},{0, 0, 0, 0}};
 // int walls[TOTAL][4] = {{0, 0, 0, 0}, {2, 0, 0, 0}, {1, 3, 0, 0}, {2, 0, 0, 0}, {5, 0, 0, 0}, {4, 6, 0, 0}, {5, 0, 0, 0}, {8, 0, 0, 0}, {7, 0, 0, 0}, {15, 10, 0, 0}, {16, 9, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {19, 0, 0, 0}, {15, 0, 0, 0}, {9, 21, 14, 16}, {10, 22, 15, 0}, {18, 0, 0, 0}, {24, 17, 0, 0}, {13, 0, 0, 0}, {26, 0, 0, 0}, {15, 22, 0, 0}, {16, 21, 0, 0}, {24, 0, 0, 0}, {18, 23, 0, 0}, {26, 0, 0, 0}, {20, 25, 27, 0}, {26, 28, 0, 0}, {34, 27, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {28, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}};
 int walls[TOTAL][4] =
-    {{0, 0, 0, 0}, {2, 0, 0, 0}, {1, 0, 0, 0}, {4, 0, 0, 0}, {3, 0, 0, 0}, {15, 0, 0, 0}, {7, 0, 0, 0}, {6, 0, 0, 0}, {0, 0, 0, 0}, {19, 0, 0, 0}, {20, 0, 0, 0}, {21, 0, 0, 0}, {13, 0, 0, 0}, {12, 0, 0, 0}, {24, 0, 0, 0}, {5, 25, 0, 0}, {26, 0, 0, 0}, {27, 18, 0, 0}, {17, 0, 0, 0}, {9, 29, 0, 0}, {10, 0, 0, 0}, {11, 0, 0, 0}, {32, 23, 0, 0}, {33, 22, 24, 0}, {14, 23, 25, 0}, {15, 24, 26, 0}, {16, 36, 25, 0}, {17, 0, 0, 0}, {38, 29, 0, 0}, {19, 28, 30, 0}, {29, 0, 0, 0}, {32, 0, 0, 0}, {22, 31, 0, 0}, {23, 0, 0, 0}, {0, 0, 0, 0}, {36, 0, 0, 0}, {26, 35, 0, 0}, {47, 38, 0, 0}, {28, 48, 37, 0}, {0, 0, 0, 0}, {50, 0, 0, 0}, {42, 0, 0, 0}, {52, 41, 43, 0}, {42, 44, 0, 0}, {54, 43, 45, 0}, {55, 44, 0, 0}, {56, 47, 0, 0}, {37, 46, 48, 0}, {38, 47, 0, 0}, {0, 0, 0, 0}, {40, 60, 0, 0}, {0, 0, 0, 0}, {42, 53, 0, 0}, {52, 54, 0, 0}, {44, 53, 0, 0}, {45, 56, 0, 0}, {46, 66, 55, 0}, {0, 0, 0, 0}, {68, 59, 0, 0}, {69, 58, 0, 0}, {50, 0, 0, 0}, {62, 0, 0, 0}, {72, 61, 63, 0}, {62, 64, 0, 0}, {63, 0, 0, 0}, {75, 66, 0, 0}, {56, 65, 0, 0}, {77, 0, 0, 0}, {58, 0, 0, 0}, {59, 79, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {62, 73, 0, 0}, {72, 74, 0, 0}, {73, 75, 0, 0}, {65, 85, 74, 0}, {0, 0, 0, 0}, {67, 87, 78, 0}, {77, 79, 0, 0}, {69, 89, 78, 0}, {0, 0, 0, 0}, {82, 0, 0, 0}, {92, 81, 83, 0}, {93, 82, 0, 0}, {94, 0, 0, 0}, {75, 95, 0, 0}, {87, 0, 0, 0}, {77, 86, 88, 0}, {87, 0, 0, 0}, {79, 99, 90, 0}, {89, 0, 0, 0}, {0, 0, 0, 0}, {82, 0, 0, 0}, {83, 0, 0, 0}, {84, 0, 0, 0}, {85, 96, 0, 0}, {95, 97, 0, 0}, {96, 0, 0, 0}, {99, 0, 0, 0}, {89, 98, 0, 0}, {0, 0, 0, 0}};
+    {{0, 0, 0, 0}, {15, 0, 0, 0}, {0, 0, 0, 0}, {17, 0, 0, 0}, {18, 0, 0, 0}, {0, 0, 0, 0}, {20, 0, 0, 0}, {0, 0, 0, 0}, {22, 0, 0, 0}, {23, 10, 0, 0}, {24, 9, 0, 0}, {25, 0, 0, 0}, {26, 0, 0, 0}, {27, 0, 0, 0}, {0, 0, 0, 0}, {1, 29, 0, 0}, {30, 0, 0, 0}, {3, 31, 0, 0}, {4, 19, 0, 0}, {18, 0, 0, 0}, {6, 34, 21, 0}, {20, 0, 0, 0}, {8, 36, 0, 0}, {9, 24, 0, 0}, {10, 38, 23, 0}, {11, 39, 0, 0}, {12, 0, 0, 0}, {13, 28, 0, 0}, {27, 0, 0, 0}, {15, 43, 0, 0}, {16, 44, 0, 0}, {17, 32, 0, 0}, {31, 33, 0, 0}, {32, 0, 0, 0}, {20, 48, 0, 0}, {49, 36, 0, 0}, {22, 35, 37, 0}, {36, 38, 0, 0}, {24, 52, 37, 0}, {25, 40, 0, 0}, {39, 41, 0, 0}, {55, 40, 42, 0}, {41, 0, 0, 0}, {29, 57, 0, 0}, {30, 45, 0, 0}, {44, 46, 0, 0}, {45, 47, 0, 0}, {46, 0, 0, 0}, {34, 0, 0, 0}, {35, 63, 0, 0}, {64, 51, 0, 0}, {50, 52, 0, 0}, {38, 51, 53, 0}, {67, 52, 0, 0}, {68, 0, 0, 0}, {41, 0, 0, 0}, {70, 0, 0, 0}, {43, 58, 0, 0}, {57, 59, 0, 0}, {58, 0, 0, 0}, {0, 0, 0, 0}, {75, 62, 0, 0}, {61, 63, 0, 0}, {49, 77, 62, 0}, {50, 78, 0, 0}, {79, 66, 0, 0}, {80, 65, 0, 0}, {53, 81, 0, 0}, {54, 82, 0, 0}, {83, 0, 0, 0}, {56, 0, 0, 0}, {72, 0, 0, 0}, {71, 0, 0, 0}, {87, 74, 0, 0}, {73, 75, 0, 0}, {61, 74, 0, 0}, {90, 0, 0, 0}, {63, 91, 0, 0}, {64, 92, 0, 0}, {65, 80, 0, 0}, {66, 94, 79, 0}, {67, 0, 0, 0}, {68, 96, 0, 0}, {69, 0, 0, 0}, {98, 0, 0, 0}, {99, 86, 0, 0}, {85, 87, 0, 0}, {73, 86, 0, 0}, {102, 89, 0, 0}, {88, 90, 0, 0}, {76, 89, 0, 0}, {77, 0, 0, 0}, {78, 93, 0, 0}, {92, 94, 0, 0}, {80, 108, 93, 0}, {0, 0, 0, 0}, {82, 110, 97, 0}, {96, 0, 0, 0}, {84, 112, 0, 0}, {85, 0, 0, 0}, {114, 0, 0, 0}, {115, 0, 0, 0}, {88, 0, 0, 0}, {117, 104, 0, 0}, {103, 105, 0, 0}, {119, 104, 0, 0}, {120, 107, 0, 0}, {106, 108, 0, 0}, {94, 107, 0, 0}, {123, 0, 0, 0}, {96, 0, 0, 0}, {0, 0, 0, 0}, {98, 126, 0, 0}, {127, 0, 0, 0}, {100, 128, 0, 0}, {101, 129, 116, 0}, {115, 117, 0, 0}, {103, 116, 0, 0}, {132, 0, 0, 0}, {105, 133, 0, 0}, {106, 134, 0, 0}, {135, 0, 0, 0}, {123, 0, 0, 0}, {109, 122, 124, 0}, {138, 123, 125, 0}, {124, 126, 0, 0}, {112, 140, 125, 0}, {113, 0, 0, 0}, {114, 142, 0, 0}, {115, 143, 0, 0}, {144, 131, 0, 0}, {130, 0, 0, 0}, {118, 146, 0, 0}, {119, 0, 0, 0}, {120, 0, 0, 0}, {121, 136, 0, 0}, {135, 0, 0, 0}, {0, 0, 0, 0}, {124, 152, 0, 0}, {153, 0, 0, 0}, {126, 154, 0, 0}, {0, 0, 0, 0}, {128, 143, 0, 0}, {129, 142, 144, 0}, {130, 158, 143, 0}, {146, 0, 0, 0}, {132, 145, 0, 0}, {161, 148, 0, 0}, {147, 149, 0, 0}, {148, 150, 0, 0}, {164, 149, 151, 0}, {150, 0, 0, 0}, {138, 166, 153, 0}, {139, 152, 0, 0}, {140, 168, 0, 0}, {156, 0, 0, 0}, {155, 157, 0, 0}, {156, 0, 0, 0}, {144, 172, 0, 0}, {160, 0, 0, 0}, {159, 0, 0, 0}, {147, 175, 0, 0}, {176, 163, 0, 0}, {162, 164, 0, 0}, {150, 163, 0, 0}, {0, 0, 0, 0}, {152, 167, 0, 0}, {166, 168, 0, 0}, {154, 167, 0, 0}, {170, 0, 0, 0}, {184, 169, 171, 0}, {170, 172, 0, 0}, {158, 171, 0, 0}, {187, 174, 0, 0}, {188, 173, 0, 0}, {161, 189, 0, 0}, {162, 190, 0, 0}, {191, 0, 0, 0}, {179, 0, 0, 0}, {178, 180, 0, 0}, {194, 179, 0, 0}, {195, 182, 0, 0}, {181, 0, 0, 0}, {184, 0, 0, 0}, {170, 183, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {173, 0, 0, 0}, {174, 0, 0, 0}, {175, 0, 0, 0}, {176, 0, 0, 0}, {177, 0, 0, 0}, {193, 0, 0, 0}, {192, 0, 0, 0}, {180, 0, 0, 0}, {181, 0, 0, 0}, {0, 0, 0, 0}};
 int maze[TOTAL][4];
-int final_maze[TOTAL][4]; // CSA
-bool PUSH_BUTTON = false; // CSA
+int final_maze[TOTAL][4];  // CSA
+bool PUSH_BUTTON1 = false; // CSA
+bool PUSH_BUTTON2 = false; // CSA
 
 typedef struct Cell
 {
@@ -98,9 +101,14 @@ int shortest_path_size = TOTAL;
 int filtered_path_size = 0;
 int fast_run_commands_size = 0;
 
-void push_button_isr()
+void push_button1_isr()
 {
-    PUSH_BUTTON = true;
+    PUSH_BUTTON1 = true;
+}
+
+void push_button2_isr()
+{
+    PUSH_BUTTON2 = true;
 }
 
 void fill_md(int up_left_cell)
@@ -584,6 +592,7 @@ void fast_run()
 {
     int dir1 = starting_dir;
     int dir2;
+    int dir_turn;
     fast_run_commands_size = 0;
 
     Serial.println("Shortest path");
@@ -596,7 +605,10 @@ void fast_run()
     for (int i = 0; i < shortest_path_size - 1; i++)
     {
         dir2 = get_relative_direction(shortest_path[i], shortest_path[i + 1]);
-        fast_run_commands[fast_run_commands_size++] = get_turning_direction(dir1, dir2);
+        dir_turn = get_turning_direction(dir1, dir2);
+        fast_run_commands[fast_run_commands_size++] = dir_turn;
+        if (dir_turn != -1)
+            fast_run_commands[fast_run_commands_size++] = -1;
         dir1 = dir2;
     }
 
@@ -607,7 +619,7 @@ void fast_run()
         Serial.print(" ");
     }
 
-    // int i = 0;
+    // compress fast run
     int tmp_size = 0;
 
     for (int i = 0; i < fast_run_commands_size; i++)
@@ -775,15 +787,11 @@ void backToStart()
             break;
         } // Reached the center destination
 
-        if (PUSH_BUTTON)
+        if (PUSH_BUTTON1)
         { // CSA
             delay(DEBOUNCE_DELAY);
-            PUSH_BUTTON = false;
-            //[turn off motors]
-            while (PUSH_BUTTON == false)
-                ;
-            delay(DEBOUNCE_DELAY);
-            break;
+            PUSH_BUTTON1 = false;
+            return;
         }
 
         get_neighbours(current_cell);
@@ -856,6 +864,26 @@ void startMouse()
 {
     for (int it = 0; it < 10; it++)
     {
+        //[MOTOR STOP]
+        while (PUSH_BUTTON1 == false && PUSH_BUTTON2 == false)
+            delay(100);
+
+        if (PUSH_BUTTON1) //SEARCH
+        {
+            delay(DEBOUNCE_DELAY);
+            PUSH_BUTTON1 = false;            
+        }
+        else if (PUSH_BUTTON2) //FAST
+        {
+            delay(DEBOUNCE_DELAY);
+            PUSH_BUTTON2 = false;
+            return;
+        }
+        else
+        {
+            // dont remove;
+        }
+
         commingBack = false;
         updateMD(starting_cell, starting_dir);
         Serial.println("ITERATION " + String(it + 1));
@@ -883,14 +911,9 @@ void startMouse()
                 break;
             } // Reached the center destination
 
-            if (PUSH_BUTTON)
-            { // CSA
-                delay(DEBOUNCE_DELAY);
-                PUSH_BUTTON = false;
-                //[turn off motors]
-                while (PUSH_BUTTON == false)
-                    ;
-                delay(DEBOUNCE_DELAY);
+            if (PUSH_BUTTON1)
+            {                 
+                //[turn off motors]               
                 break;
             }
 
@@ -935,6 +958,12 @@ void startMouse()
             }
 
             // print path
+        }
+
+        if(PUSH_BUTTON1){
+            delay(DEBOUNCE_DELAY);
+            PUSH_BUTTON1 = false;
+            continue;
         }
 
         for (int j = 0; j < index_; j++)
@@ -1044,9 +1073,9 @@ void setup()
     Serial.begin(9600);
     initialize_final_maze(); // initialize empty 2D array for the maze
     fill_md(DESTINATION);
-    show(md);
-    Serial.println(" ");
-    show(rev_md);
+    // show(md);
+    // Serial.println(" ");
+    // show(rev_md);
     // get_neighbours(29);
     // get_available_neighbours(29);
     // print_neighbours(1);
@@ -1054,8 +1083,30 @@ void setup()
 
     // return;
     // CSA
-    pinMode(PUSH_BUTTON_PIN, INPUT);
-    attachInterrupt(PUSH_BUTTON_PIN, push_button_isr, FALLING);
+    pinMode(PUSH_BUTTON1_PIN, INPUT);
+    attachInterrupt(PUSH_BUTTON1_PIN, push_button1_isr, FALLING);
+
+    pinMode(PUSH_BUTTON2_PIN, INPUT);
+    attachInterrupt(PUSH_BUTTON2_PIN, push_button2_isr, FALLING);
+
+    while(PUSH_BUTTON1==false && PUSH_BUTTON2==false)
+        delay(100);
+
+    if(PUSH_BUTTON1){
+        delay(DEBOUNCE_DELAY);
+        PUSH_BUTTON1 = false;
+        starting_dir = DIR_EAST;
+        Serial.println("Start Dir EAST");
+    }else if(PUSH_BUTTON2){
+        delay(DEBOUNCE_DELAY);
+        PUSH_BUTTON2 = false;
+        starting_dir = DIR_SOUTH;
+        Serial.println("Start Dir SOUTH");
+    }else{
+        // dont remove;
+    }
+
+    //beep before start
 
     startMouse();
     Serial.println("Search END");
