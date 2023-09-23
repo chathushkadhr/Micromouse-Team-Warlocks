@@ -30,7 +30,7 @@
 //#define rightIR2 2
 //#define leftIR2 32
 #define AVERAGE_OF 1
-#define IR_THRESH 15
+#define IR_THRESH 10
 
 //Buzzer
 #define buzzPin 2
@@ -294,12 +294,17 @@ void setup() {
 //  fill_md(DESTINATION);
 
   
-//  blinkLED(1);
+  blinkLED(1);
   delay(2000);
   
 }
 
 void loop() {
+  blinkLED(1);
+  adjustCell();
+  delay(4000);
+//go_count(200);
+//delay(2000);
 //  IRtest();
 //  double t = millis();
 //  while((millis()-t)<5000){
@@ -315,7 +320,7 @@ void loop() {
 //  mpu.update();
 //  SerialBT.println(mpu.getAngleZ());
 //  turnTest();
-  cellRunTest();
+//  cellRunTest();
 //  alignTest();
 //  tofTest();
 //

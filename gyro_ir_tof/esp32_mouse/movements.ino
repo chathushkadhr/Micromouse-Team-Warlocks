@@ -671,15 +671,15 @@ void adjustFrontDistance(){
   
       if (motorSpeed>0){
         ledcWrite(PWMm1a,0);
-        ledcWrite(PWMm1b,motorSpeed);
+        ledcWrite(PWMm1b,abs(motorSpeed));
         ledcWrite(PWMm2a,0);
-        ledcWrite(PWMm2b,motorSpeed);
+        ledcWrite(PWMm2b,abs(motorSpeed));
         delay(2);
       }
       else{
-        ledcWrite(PWMm1a,motorSpeed);
+        ledcWrite(PWMm1a,abs(motorSpeed));
         ledcWrite(PWMm1b,0);
-        ledcWrite(PWMm2a,motorSpeed);
+        ledcWrite(PWMm2a,abs(motorSpeed));
         ledcWrite(PWMm2b,0);
         delay(2);
       }
@@ -690,5 +690,173 @@ void adjustFrontDistance(){
   }
 //  SerialBT.println("Cell count;");
 //  SerialBT.println((count1 + count2)/2);
+  
+}
+
+ void go_count(int total_count){
+  count1 = 0;
+  count2 = 0;
+  
+  float error = total_count - ((count1 + count2))/2;
+  float pre_error = 0;
+
+  while(true){
+    if(abs(error)< 2){break;}
+  
+    while(true){ 
+      if(abs(error)< 2){
+        ledcWrite(PWMm1a,0);
+        ledcWrite(PWMm1b,0);
+        ledcWrite(PWMm2a,0);
+        ledcWrite(PWMm2b,0);
+        delay(10);
+        break;
+      } 
+      
+      float motorSpeed =  kp_cell*error + kd_cell*(error - pre_error);
+    
+      if (motorSpeed < -1*maxpwm){motorSpeed = -1*maxpwm;}else if(motorSpeed > maxpwm){motorSpeed = maxpwm;}else{motorSpeed = (int)motorSpeed;}
+      if(motorSpeed!=0){
+        if (abs(motorSpeed)<minpwm){motorSpeed = minpwm * motorSpeed/abs(motorSpeed); motorSpeed = (int)motorSpeed;}
+      }
+    
+  
+      if (motorSpeed>0){
+        ledcWrite(PWMm1a,0);
+        ledcWrite(PWMm1b,abs(motorSpeed));
+        ledcWrite(PWMm2a,0);
+        ledcWrite(PWMm2b,abs(motorSpeed));
+        delay(2);
+      }
+      else{
+        ledcWrite(PWMm1a,abs(motorSpeed));
+        ledcWrite(PWMm1b,0);
+        ledcWrite(PWMm2a,abs(motorSpeed));
+        ledcWrite(PWMm2b,0);
+        delay(2);
+      }
+      pre_error = error;
+      error =  total_count - ((count1 + count2))/2;   
+    }
+    error =  total_count - ((count1 + count2))/2;  
+  }
+//  SerialBT.println("Cell count;");
+//  SerialBT.println((count1 + count2)/2);
+  
+}
+
+
+void adjustCell(){
+// 
+  float l1 = readTOF(leftTOF1);
+  delay(5);
+  float l2 = readTOF(leftTOF2);
+  delay(5);
+  float l_ir = readIR2(leftIR);
+  delay(2);
+//  SerialBT.println(l1);
+//  SerialBT.println(" ");
+//  SerialBT.println(l2);
+//  SerialBT.println(" ");
+//  SerialBT.println(l_ir);
+//  SerialBT.println(" ");  
+  
+  if(  ((l1<wall_thresh)&&(l_ir<IR_THRESH) && (l2>wall_thresh))||((l1>wall_thresh)&&(l_ir>IR_THRESH) && (l2<wall_thresh))  ){
+//    while( ((l_ir<IR_THRESH) && (l2>wall_thresh)) || ((l_ir>IR_THRESH) && (l2<wall_thresh)) ){
+//      ledcWrite(PWMm1a,0);
+//      ledcWrite(PWMm1b,260);
+//      ledcWrite(PWMm2a,0);
+//      ledcWrite(PWMm2b,260);
+//      delay(200);
+//      l2 = readTOF(leftTOF2);
+//      l_ir = readIR2(leftIR);
+//      delay(5);
+//    }
+//    ledcWrite(PWMm1a,0);
+//    ledcWrite(PWMm1b,0);
+//    ledcWrite(PWMm2a,0);
+//    ledcWrite(PWMm2b,0);
+//    delay(10);
+    go_count(100);
+    return;
+    
+  }
+
+  else if (((l2<wall_thresh)&&(l_ir<IR_THRESH) && (l1>wall_thresh))||((l2>wall_thresh)&&(l_ir>IR_THRESH) && (l1<wall_thresh)) ){
+//    while(((l_ir<IR_THRESH) && (l1>wall_thresh)) || ((l_ir>IR_THRESH) && (l1<wall_thresh))){
+//      ledcWrite(PWMm1a,260);
+//      ledcWrite(PWMm1b,0);
+//      ledcWrite(PWMm2a,260);
+//      ledcWrite(PWMm2b,0);
+//      delay(200);
+//      l1 = readTOF(leftTOF1);
+//      l_ir = readIR2(leftIR);
+//      delay(5);
+//    }
+//    ledcWrite(PWMm1a,0);
+//    ledcWrite(PWMm1b,0);
+//    ledcWrite(PWMm2a,0);
+//    ledcWrite(PWMm2b,0);
+//    delay(10); 
+    go_count(-100);   
+    return;
+  }
+
+
+  float r1 = readTOF(rightTOF1);
+  delay(5);
+  float r2 = readTOF(rightTOF2);
+  delay(5);
+  float r_ir = readIR2(rightIR);
+  delay(2);
+
+  SerialBT.println(r1);
+  SerialBT.println(" ");
+  SerialBT.println(r2);
+  SerialBT.println(" ");
+  SerialBT.println(r_ir);
+  SerialBT.println(" ");  
+  
+  if(  ((r1<wall_thresh)&&(r_ir<IR_THRESH) && (r2>wall_thresh))||((r1>wall_thresh)&&(r_ir>IR_THRESH) && (r2<wall_thresh))  ){
+//    while( ((r_ir<IR_THRESH) && (r2>wall_thresh)) || ((r_ir>IR_THRESH) && (r2<wall_thresh)) ){
+//      ledcWrite(PWMm1a,0);
+//      ledcWrite(PWMm1b,260);
+//      ledcWrite(PWMm2a,0);
+//      ledcWrite(PWMm2b,260);
+//      delay(200);
+//      r2 = readTOF(rightTOF2);
+//      r_ir = readIR2(rightIR);
+//      delay(5);
+//    }
+//    ledcWrite(PWMm1a,0);
+//    ledcWrite(PWMm1b,0);
+//    ledcWrite(PWMm2a,0);
+//    ledcWrite(PWMm2b,0);
+//    delay(10);
+    go_count(100);
+    return;
+    
+  }
+
+  else if (((r2<wall_thresh)&&(r_ir<IR_THRESH) && (r1>wall_thresh))||((r2>wall_thresh)&&(r_ir>IR_THRESH) && (r1<wall_thresh)) ){
+
+//    while(((r_ir<IR_THRESH) && (r1>wall_thresh)) || ((r_ir>IR_THRESH) && (r1<wall_thresh))){
+//      ledcWrite(PWMm1a,260);
+//      ledcWrite(PWMm1b,0);
+//      ledcWrite(PWMm2a,260);
+//      ledcWrite(PWMm2b,0);
+//      delay(200);
+//      r1 = readTOF(rightTOF1);
+//      r_ir = readIR2(rightIR);
+//      delay(5);
+//    }
+//    ledcWrite(PWMm1a,0);
+//    ledcWrite(PWMm1b,0);
+//    ledcWrite(PWMm2a,0);
+//    ledcWrite(PWMm2b,0);
+//    delay(10); 
+    go_count(-100);   
+    return;
+  }
   
 }
