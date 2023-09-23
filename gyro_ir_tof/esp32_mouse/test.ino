@@ -1,9 +1,9 @@
  void alignTest(){
-    SerialBT.println("Give value for kp:");
-    kp_align = BTreadFloat();
-
-    SerialBT.println("Give value for kd:");
-    kd_align = BTreadFloat();
+//    SerialBT.println("Give value for kp:");
+//    kp_align = BTreadFloat();
+//
+//    SerialBT.println("Give value for kd:");
+//    kd_align = BTreadFloat();
     align();
     delay(1000);
  }
@@ -39,12 +39,25 @@
     globle_theta= mpu.getAngleZ();
 //    blinkLED(1);
     for (int i=0;i<it;i++){
-      goCellDevel();
+      goCellDevelIR();
     }
-    breakNow2();
+    breakNow2(breakCount);
     
  }
 
+
+void IR_cell_run(){
+//    SerialBT.println("Give value for cell count:");
+//    cellCount = BTreadInt()  ;
+    SerialBT.println("Give value for k_ir:");
+    k_ir = BTreadFloat();
+  
+    mpu.update();
+    globle_theta= mpu.getAngleZ();
+    for (int i=0;i<5;i++){
+      goCellDevelIR();
+    }    
+}
 void turnTest(){
 //    SerialBT.println("Give value for kp:");
 //    kp_gyro_turn = BTreadFloat();
@@ -150,14 +163,14 @@ int BTreadInt(){
  }
 
  void Buzz(int c){
-  if(c==1){
+  if(c==0){
 
     digitalWrite(buzzPin, HIGH);
     delay(2);
     digitalWrite(buzzPin, LOW);
   }
   else{
-    for(int i=0;i<2;i++){
+    for(int i=0;i<c;i++){
       digitalWrite(buzzPin, HIGH);
     delay(50);
     digitalWrite(buzzPin, LOW);

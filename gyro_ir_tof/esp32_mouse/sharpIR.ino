@@ -43,3 +43,14 @@ float readIR2(int t)
     
   return (d1+d2)/2;
 }
+
+void calibIRThresh(){
+  for(int i=0;i<100;i++){
+    ir_left_distance += readIR(leftIR);
+    delay(20);
+    ir_right_distance += readIR(rightIR);
+    delay(20);    
+  }
+  ir_left_distance=ir_left_distance/100;
+  ir_right_distance=ir_right_distance/100;
+}

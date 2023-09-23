@@ -215,16 +215,18 @@ void get_available_neighbours(int current){
 bool checkWall(int current_direction, int neighbour_direction){
   int neighbour_side = get_turning_direction(current_direction,neighbour_direction); 
   
-  double l2 = readTOF(leftTOF2),r2 = readTOF(rightTOF2),f=readTOF(frontTOF);
-  //SerialBT.println(String(l2)+" "+String(r2)+" "+String(f));
-  
+  float l = readIR2(leftIR);
+  float r = readIR2(rightIR);
+  float f = readTOF(frontTOF);
+  delay(5);
+   
     if(neighbour_side==6){
-      if(l2<wall_thresh ){return false;}
+      if(l<IR_THRESH ){return false;}
       else{return true;}
     }
   
      else if(neighbour_side==7){
-      if(r2<wall_thresh){return false;}
+      if(r<IR_THRESH){return false;}
       else{return true;}
     }
      else if(neighbour_side==-1){
@@ -372,35 +374,32 @@ void backToStart(){
         next_dir = min_neighbours[0].dir;
 
         int turning_direction = get_turning_direction(current_dir,next_dir);
-        /////////Add turning functions///////////////////////
-        if(turning_direction==6){turn90(1);delay(100);SerialBT.println("Turn Left");}
-        else if(turning_direction==7){turn90(-1);delay(100);SerialBT.println("Turn Right");}
-        else if(turning_direction==8){turn90(1);delay(100);turn90(1);delay(100);SerialBT.println("Turn Back");}
-        else if(turning_direction==-1){SerialBT.println("Don't turn");}
-        /////////////////////////////////////////////////////
-        
-        /////////Go one cell forward//////////////////////////
-        SerialBT.println("Go one cell forward");
-          float r1 = readTOF(rightTOF1),r2 = readTOF(rightTOF2),l1 =readTOF(leftTOF1), l2 = readTOF(leftTOF2);
-          prev_left = (l1<wall_thresh)||(l2<wall_thresh);
-          prev_right = (r1<wall_thresh)||(r2<wall_thresh);
+          /////////Add turning functions///////////////////////
+          if(turning_direction==6){
+            turn_align(1);
+//            SerialBT.println("Turn Left"); 
+            }
+          else if(turning_direction==7){
+            //breakNow();
+            turn_align(-1);
+//            SerialBT.println("Turn Right"); 
+            }
+          else if(turning_direction==8){
+            turn_align(1);
+            turn_align(1);
+//            SerialBT.println("Turn Back");
+            }
+          else if(turning_direction==-1){
+           //SerialBT.println("Don't turn"); 
+            }
+          /////////////////////////////////////////////////////
           
-          if(l1<70 && l2<70){
-//            goForwardspecificDistanceLeft();
-          }
-          else if(r2<70 && r1<70){
-//            goForwardspecificDistanceRight();
-          }
-          else if(l1>150 && l2>150 && r1>70 && r2>70 ){
-//            goForwardspecificDistanceRight();
-          }
-          else if(r1>150 && r2>150 && l1>70 && l2>70){
-//            goForwardspecificDistanceLeft();
-          }
-          else {
-            goCell();
-          }
-          delay(100);          
+          /////////Go one cell forward//////////////////////////
+//          SerialBT.println("Go one cell forward");
+//          goCellDevelIR();
+          goCellDevelIR();         
+          correct_direction();
+ 
         //////////////////////////////////////////////////////
         current_cell = min_neighbours[0].cell_number;
         current_dir = next_dir;
@@ -417,9 +416,23 @@ void backToStart(){
 
   int turning_direction = get_turning_direction(current_dir,starting_dir);
   /////////Add turning functions///////////////////////
-  if(turning_direction==6){turn90(1);delay(100);SerialBT.println("Turn Left");}
-  else if(turning_direction==7){turn90(-1);delay(100);SerialBT.println("Turn Right");}
-  else if(turning_direction==8){turn90(1);delay(100);turn90(1);delay(100);SerialBT.println("Turn Back");}
+  if(turning_direction==6){
+    turn_align(1);
+    delay(100);
+//    SerialBT.println("Turn Left");
+    }
+  else if(turning_direction==7){
+    turn_align(-1);
+    delay(100);
+//    SerialBT.println("Turn Right");
+    }
+  else if(turning_direction==8){
+    turn_align(1);
+//    delay(100);
+    turn_align(1);
+//    delay(100);
+//    SerialBT.println("Turn Back");
+    }
   current_dir = starting_dir;
 }
 
@@ -458,22 +471,17 @@ void startMouse(){
 
           /////////Add turning functions///////////////////////
           if(turning_direction==6){
-             breakNow();
-            turn90(1);
-            delay(50);
+            turn_align(1);
 //            SerialBT.println("Turn Left"); 
             }
           else if(turning_direction==7){
-            breakNow();;
-            turn90(-1);
-            delay(50);
+            //breakNow();;
+            turn_align(-1);
 //            SerialBT.println("Turn Right"); 
             }
           else if(turning_direction==8){
-            breakNow();turn90(1);
-            delay(50);
-            turn90(1);
-            delay(50);
+            turn_align(1);
+            turn_align(1);
 //            SerialBT.println("Turn Back");
             }
           else if(turning_direction==-1){
@@ -482,33 +490,12 @@ void startMouse(){
           /////////////////////////////////////////////////////
           
           /////////Go one cell forward//////////////////////////
-          SerialBT.println("Go one cell forward");
-          goCellDevel();
-          
-//          float r1 = readTOF(rightTOF1),r2 = readTOF(rightTOF2),l1 =readTOF(leftTOF1), l2 = readTOF(leftTOF2);
-//          
-//          prev_left = (l1<wall_thresh)||(l2<wall_thresh);
-//          prev_right = (r1<wall_thresh)||(r2<wall_thresh);
-//          
-//          if(l1<70 && l2<70){
-//            goForwardspecificDistanceLeft();
-//          }
-//          else if(r2<70 && r1<70){
-//            goForwardspecificDistanceRight();
-//          }
-//          else if(l1>150 && l2>150 && r1>70 && r2>70 ){
-//            goForwardspecificDistanceRight();
-//          }
-//          else if(r1>150 && r2>150 && l1>70 && l2>70){
-//            goForwardspecificDistanceLeft();
-//          }
-//          else {
-//            goCellDevel();
-//            goCell();
-//          }
-//          delay(100);    
+//          SerialBT.println("Go one cell forward");
+//          goCellDevelIR();
+          goCellDevelIR(); 
+          correct_direction();
+ 
           //////////////////////////////////////////////////////
-//          blinkLED(1);
           current_cell = min_neighbours[0].cell_number;
           current_dir = next_dir;
         } 
@@ -522,12 +509,12 @@ void startMouse(){
 
     }
     
-    for (int j = 0; j < index_; j++){
-    SerialBT.print(path[j]);
-    SerialBT.print(" ");
-    }
-    SerialBT.println();
-    blinkLED(5);
+//    for (int j = 0; j < index_; j++){
+//    SerialBT.print(path[j]);
+//    SerialBT.print(" ");
+//    }
+//    SerialBT.println();
+    Buzz(destinationTone);
     backToStart();
 
   }

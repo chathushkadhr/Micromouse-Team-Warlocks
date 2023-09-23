@@ -22,7 +22,7 @@
 #define rightTOF2 1
 #define leftTOF1 4
 #define leftTOF2 5
-#define wall_thresh 130
+#define wall_thresh 100
 
 //SharpIR 
 #define rightIR 35 
@@ -34,8 +34,8 @@
 
 //Buzzer
 #define buzzPin 2
-#define cellTone 1
-#define destinationTone 0
+#define cellTone 0
+#define destinationTone 3
 
 //pwm props
 const int PWMFreq = 1000;
@@ -65,6 +65,7 @@ float pre_error=0;
 int cellCount = 230; //150;
 int it = 1;
 float k_tof = 4;
+float k_ir = 3;
 
 //breakNow2 params
 float kp_cell=1.6,kd_cell=20;
@@ -120,6 +121,10 @@ bool prev_r = false;
 float right_distance= 0;
 float left_distance= 0;
 
+float ir_left_distance= 0;
+float ir_right_distance= 0;
+
+int need_break = 1;
 //############################################
 #define DIM 10
 #define TOTAL DIM*DIM+1
@@ -288,21 +293,24 @@ void setup() {
 
 
 
+  initialize_maze();
+  fill_md(DESTINATION);
 
-//  definDestination();
-//  initialize_maze();
-//  fill_md(DESTINATION);
-
+  calibIRThresh();
+//  blinkLED(1);
+//  delay(2000);
   
-  blinkLED(1);
-  delay(2000);
-  
+  mpu.update();
+  globle_theta=mpu.getAngleZ();
 }
 
 void loop() {
-  blinkLED(1);
-  adjustCell();
-  delay(4000);
+//  alignTest();
+//  IR_cell_run();
+//  cellRunTest();
+//  blinkLED(1);
+//  adjustCell();
+//  delay(4000);
 //go_count(200);
 //delay(2000);
 //  IRtest();
@@ -315,7 +323,10 @@ void loop() {
 //    }
 //  }
 //  blinkLED(3);
-//  startMouse();
+//goCellDevel2();
+//delay(4000);
+  Buzz(2);
+  startMouse();
 //    delay(1000000);
 //  mpu.update();
 //  SerialBT.println(mpu.getAngleZ());
