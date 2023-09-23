@@ -38,8 +38,10 @@ bool commingBack = false;
 // int walls[TOTAL][4] = {{0, 0, 0, 0}, {2, 0, 0, 0}, {1, 3, 0, 0}, {2, 0, 0, 0}, {5, 0, 0, 0}, {4, 6, 0, 0}, {5, 0, 0, 0}, {8, 0, 0, 0}, {7, 0, 0, 0}, {15, 10, 0, 0}, {16, 9, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {19, 0, 0, 0}, {15, 0, 0, 0}, {9, 21, 14, 16}, {10, 22, 15, 0}, {18, 0, 0, 0}, {24, 17, 0, 0}, {13, 0, 0, 0}, {26, 0, 0, 0}, {15, 22, 0, 0}, {16, 21, 0, 0}, {24, 0, 0, 0}, {18, 23, 0, 0}, {26, 0, 0, 0}, {20, 25, 27, 0}, {26, 28, 0, 0}, {34, 27, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {28, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}};
 int walls[TOTAL][4] =
     {{0, 0, 0, 0}, {15, 0, 0, 0}, {0, 0, 0, 0}, {17, 0, 0, 0}, {18, 0, 0, 0}, {0, 0, 0, 0}, {20, 0, 0, 0}, {0, 0, 0, 0}, {22, 0, 0, 0}, {23, 10, 0, 0}, {24, 9, 0, 0}, {25, 0, 0, 0}, {26, 0, 0, 0}, {27, 0, 0, 0}, {0, 0, 0, 0}, {1, 29, 0, 0}, {30, 0, 0, 0}, {3, 31, 0, 0}, {4, 19, 0, 0}, {18, 0, 0, 0}, {6, 34, 21, 0}, {20, 0, 0, 0}, {8, 36, 0, 0}, {9, 24, 0, 0}, {10, 38, 23, 0}, {11, 39, 0, 0}, {12, 0, 0, 0}, {13, 28, 0, 0}, {27, 0, 0, 0}, {15, 43, 0, 0}, {16, 44, 0, 0}, {17, 32, 0, 0}, {31, 33, 0, 0}, {32, 0, 0, 0}, {20, 48, 0, 0}, {49, 36, 0, 0}, {22, 35, 37, 0}, {36, 38, 0, 0}, {24, 52, 37, 0}, {25, 40, 0, 0}, {39, 41, 0, 0}, {55, 40, 42, 0}, {41, 0, 0, 0}, {29, 57, 0, 0}, {30, 45, 0, 0}, {44, 46, 0, 0}, {45, 47, 0, 0}, {46, 0, 0, 0}, {34, 0, 0, 0}, {35, 63, 0, 0}, {64, 51, 0, 0}, {50, 52, 0, 0}, {38, 51, 53, 0}, {67, 52, 0, 0}, {68, 0, 0, 0}, {41, 0, 0, 0}, {70, 0, 0, 0}, {43, 58, 0, 0}, {57, 59, 0, 0}, {58, 0, 0, 0}, {0, 0, 0, 0}, {75, 62, 0, 0}, {61, 63, 0, 0}, {49, 77, 62, 0}, {50, 78, 0, 0}, {79, 66, 0, 0}, {80, 65, 0, 0}, {53, 81, 0, 0}, {54, 82, 0, 0}, {83, 0, 0, 0}, {56, 0, 0, 0}, {72, 0, 0, 0}, {71, 0, 0, 0}, {87, 74, 0, 0}, {73, 75, 0, 0}, {61, 74, 0, 0}, {90, 0, 0, 0}, {63, 91, 0, 0}, {64, 92, 0, 0}, {65, 80, 0, 0}, {66, 94, 79, 0}, {67, 0, 0, 0}, {68, 96, 0, 0}, {69, 0, 0, 0}, {98, 0, 0, 0}, {99, 86, 0, 0}, {85, 87, 0, 0}, {73, 86, 0, 0}, {102, 89, 0, 0}, {88, 90, 0, 0}, {76, 89, 0, 0}, {77, 0, 0, 0}, {78, 93, 0, 0}, {92, 94, 0, 0}, {80, 108, 93, 0}, {0, 0, 0, 0}, {82, 110, 97, 0}, {96, 0, 0, 0}, {84, 112, 0, 0}, {85, 0, 0, 0}, {114, 0, 0, 0}, {115, 0, 0, 0}, {88, 0, 0, 0}, {117, 104, 0, 0}, {103, 105, 0, 0}, {119, 104, 0, 0}, {120, 107, 0, 0}, {106, 108, 0, 0}, {94, 107, 0, 0}, {123, 0, 0, 0}, {96, 0, 0, 0}, {0, 0, 0, 0}, {98, 126, 0, 0}, {127, 0, 0, 0}, {100, 128, 0, 0}, {101, 129, 116, 0}, {115, 117, 0, 0}, {103, 116, 0, 0}, {132, 0, 0, 0}, {105, 133, 0, 0}, {106, 134, 0, 0}, {135, 0, 0, 0}, {123, 0, 0, 0}, {109, 122, 124, 0}, {138, 123, 125, 0}, {124, 126, 0, 0}, {112, 140, 125, 0}, {113, 0, 0, 0}, {114, 142, 0, 0}, {115, 143, 0, 0}, {144, 131, 0, 0}, {130, 0, 0, 0}, {118, 146, 0, 0}, {119, 0, 0, 0}, {120, 0, 0, 0}, {121, 136, 0, 0}, {135, 0, 0, 0}, {0, 0, 0, 0}, {124, 152, 0, 0}, {153, 0, 0, 0}, {126, 154, 0, 0}, {0, 0, 0, 0}, {128, 143, 0, 0}, {129, 142, 144, 0}, {130, 158, 143, 0}, {146, 0, 0, 0}, {132, 145, 0, 0}, {161, 148, 0, 0}, {147, 149, 0, 0}, {148, 150, 0, 0}, {164, 149, 151, 0}, {150, 0, 0, 0}, {138, 166, 153, 0}, {139, 152, 0, 0}, {140, 168, 0, 0}, {156, 0, 0, 0}, {155, 157, 0, 0}, {156, 0, 0, 0}, {144, 172, 0, 0}, {160, 0, 0, 0}, {159, 0, 0, 0}, {147, 175, 0, 0}, {176, 163, 0, 0}, {162, 164, 0, 0}, {150, 163, 0, 0}, {0, 0, 0, 0}, {152, 167, 0, 0}, {166, 168, 0, 0}, {154, 167, 0, 0}, {170, 0, 0, 0}, {184, 169, 171, 0}, {170, 172, 0, 0}, {158, 171, 0, 0}, {187, 174, 0, 0}, {188, 173, 0, 0}, {161, 189, 0, 0}, {162, 190, 0, 0}, {191, 0, 0, 0}, {179, 0, 0, 0}, {178, 180, 0, 0}, {194, 179, 0, 0}, {195, 182, 0, 0}, {181, 0, 0, 0}, {184, 0, 0, 0}, {170, 183, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {173, 0, 0, 0}, {174, 0, 0, 0}, {175, 0, 0, 0}, {176, 0, 0, 0}, {177, 0, 0, 0}, {193, 0, 0, 0}, {192, 0, 0, 0}, {180, 0, 0, 0}, {181, 0, 0, 0}, {0, 0, 0, 0}};
-int maze[TOTAL][4];
+// int maze[TOTAL][4];
 int final_maze[TOTAL][4];  // CSA
+int tmp_maze_forward[TOTAL][4];  // CSA
+int tmp_maze_backward[TOTAL][4];  // CSA
 bool PUSH_BUTTON1 = false; // CSA
 bool PUSH_BUTTON2 = false; // CSA
 
@@ -317,13 +319,13 @@ int num_walls(int arr[])
     return (4 - count);
 }
 
-void maze_update(int base, int wall_with)
+void maze_update(int maze[][4],int base, int wall_with)
 {
     int n_walls = num_walls(maze[base]);
     maze[base][n_walls] = wall_with;
 }
 
-void get_available_neighbours(int current)
+void get_available_neighbours(int maze[][4], int current)
 {
     int k = 0;
 
@@ -348,15 +350,15 @@ void get_available_neighbours(int current)
 
             if (should_update)
             {
-                maze_update(neighbours[x].cell_number, current);
-                maze_update(current, neighbours[x].cell_number);
+                maze_update(maze,neighbours[x].cell_number, current);
+                maze_update(maze,current, neighbours[x].cell_number);
             }
         }
     }
     available_neighbours_length = k;
 }
 
-void get_available_neighbours_maze(int current)
+void get_available_neighbours_maze(int maze[][4], int current)
 {
     int kk = 0;
 
@@ -436,7 +438,7 @@ bool queue_empty(void)
     return (queue_start - queue_end > 0);
 }
 
-void flood_fill(int current)
+void flood_fill(int maze[][4], int current)
 {
     // commingBack ^= true;
     initialize_queue();
@@ -446,7 +448,7 @@ void flood_fill(int current)
         int front = dequeue();
         get_neighbours(front);
 
-        get_available_neighbours_maze(front);
+        get_available_neighbours_maze(maze,front);
 
         get_min_md();
 
@@ -644,6 +646,24 @@ void fast_run()
     {
         Serial.print(fast_run_commands[i]);
         Serial.print(" ");
+        
+
+        if (PUSH_BUTTON1) // SEARCH
+        {
+            delay(DEBOUNCE_DELAY);
+            PUSH_BUTTON1 = false;
+            return;
+        }
+        else if (PUSH_BUTTON2) // FAST
+        {
+            delay(DEBOUNCE_DELAY);
+            PUSH_BUTTON2 = false;
+            return;
+        }
+        else
+        {
+            // dont remove;
+        }
     }
 }
 
@@ -763,14 +783,16 @@ void followPath2()
 void backToStart()
 {
     commingBack = true;
-    updateMD(current_cell, current_dir);
+
+    memcpy(tmp_maze_backward, tmp_maze_forward, sizeof(tmp_maze_forward)); // CSA
+    updateMD(tmp_maze_backward,current_cell, current_dir);
     // current_cell = 22;
     // current_dir = 2;
     index_ = 0;
     path[index_] = current_cell;
     index_++;
 
-    memcpy(maze, final_maze, sizeof(maze)); // CSA
+   
 
     while (true)
     {
@@ -783,7 +805,7 @@ void backToStart()
 
         if (get_md(current_cell) == 0)
         {
-            memcpy(final_maze, maze, sizeof(maze)); // CSA
+            memcpy(final_maze, tmp_maze_backward, sizeof(tmp_maze_backward)); // CSA
             break;
         } // Reached the center destination
 
@@ -796,7 +818,7 @@ void backToStart()
 
         get_neighbours(current_cell);
 
-        get_available_neighbours(current_cell);
+        get_available_neighbours(tmp_maze_backward,current_cell);
 
         get_min_md();
 
@@ -827,11 +849,13 @@ void backToStart()
             //////////////////////////////////////////////////////
             current_cell = min_neighbours[0].cell_number;
             current_dir = next_dir;
+
+            delay(500); // remove
         }
 
         else
         {
-            flood_fill(current_cell);
+            flood_fill(tmp_maze_backward,current_cell);
         }
 
         // print path
@@ -884,8 +908,10 @@ void startMouse()
             // dont remove;
         }
 
+        memcpy(tmp_maze_forward, final_maze, sizeof(final_maze)); // CSA
+
         commingBack = false;
-        updateMD(starting_cell, starting_dir);
+        updateMD(tmp_maze_forward,starting_cell, starting_dir);
         Serial.println("ITERATION " + String(it + 1));
         delay(100);
         current_cell = starting_cell;
@@ -894,7 +920,7 @@ void startMouse()
         path[index_] = current_cell;
         index_++;
 
-        memcpy(maze, final_maze, sizeof(maze)); // CSA
+       
 
         while (true)
         {
@@ -907,7 +933,7 @@ void startMouse()
 
             if (get_md(current_cell) == 0)
             {
-                memcpy(final_maze, maze, sizeof(maze)); // CSA
+                memcpy(final_maze, tmp_maze_forward, sizeof(tmp_maze_forward)); // CSA
                 break;
             } // Reached the center destination
 
@@ -919,7 +945,7 @@ void startMouse()
 
             get_neighbours(current_cell);
 
-            get_available_neighbours(current_cell);
+            get_available_neighbours(tmp_maze_forward,current_cell);
 
             get_min_md();
 
@@ -950,11 +976,13 @@ void startMouse()
                 //////////////////////////////////////////////////////
                 current_cell = min_neighbours[0].cell_number;
                 current_dir = next_dir;
+
+                delay(500); //remove
             }
 
             else
             {
-                flood_fill(current_cell);
+                flood_fill(tmp_maze_forward,current_cell);
             }
 
             // print path
@@ -1012,7 +1040,7 @@ void startMouse()
     }
 }
 
-void updateMD(int img_starting_cell, int img_starting_dir)
+void updateMD(int maze[][4], int img_starting_cell, int img_starting_dir)
 {
     int img_current_cell = img_starting_cell;
     int img_current_dir = img_starting_dir;
@@ -1034,7 +1062,7 @@ void updateMD(int img_starting_cell, int img_starting_dir)
         } // Reached the center destination
         get_neighbours(img_current_cell);
 
-        get_available_neighbours_maze(img_current_cell);
+        get_available_neighbours_maze(maze,img_current_cell);
 
         get_min_md();
 
@@ -1054,7 +1082,7 @@ void updateMD(int img_starting_cell, int img_starting_dir)
 
         else
         {
-            flood_fill(img_current_cell);
+            flood_fill(maze,img_current_cell);
         }
 
         // print path
@@ -1108,14 +1136,14 @@ void setup()
 
     //beep before start
 
-    startMouse();
-    Serial.println("Search END");
-    fast_run();
+    
 }
 
 void loop()
 {
-    // put your main code here, to run repeatedly:
+    startMouse();
+    Serial.println("Search END");
+    fast_run();
 }
 
 void show(int arr[][DIM])
