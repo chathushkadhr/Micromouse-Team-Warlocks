@@ -2,8 +2,8 @@ import tkinter as tk
 from tkinter import simpledialog
 
 
-CELL_SIZE=50
-GRID_SIZE = 10
+CELL_SIZE=40
+GRID_SIZE = 14
 WALL_COUNT=GRID_SIZE+1
 WALL_WIDTH=10
 
@@ -25,7 +25,7 @@ def init_ui_root():
     # Create the main application window
     root = tk.Tk()
     root.title("Button Example")
-    root.geometry('{}x{}'.format(CELL_SIZE*WALL_COUNT,CELL_SIZE*WALL_COUNT))
+    root.geometry('{}x{}'.format(CELL_SIZE*(WALL_COUNT+2),CELL_SIZE*WALL_COUNT))
 
     # Create a label to display the number
     label = tk.Label(root, text="", font=("Helvetica", 24))
@@ -47,7 +47,7 @@ def init_ui_root():
     for i in range(WALL_COUNT):        
         for j in range(WALL_COUNT):
             if(j!=WALL_COUNT-1 and i!=WALL_COUNT-1):
-                cell = tk.Label(root, text=str(i*GRID_SIZE+j+1), font=("Helvetica", 16))
+                cell = tk.Label(root, text=str(i*GRID_SIZE+j+1), font=("Helvetica", 12))
                 cell.pack(pady=CELL_SIZE//2, padx=CELL_SIZE//2) 
                 cell.place(x=j*CELL_SIZE, y=i*CELL_SIZE, width=CELL_SIZE, height=CELL_SIZE)
                 cells.append(cell)

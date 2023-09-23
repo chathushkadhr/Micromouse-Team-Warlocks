@@ -12,10 +12,23 @@
  2 - west
  3 - south
  4 - north
+
  6 - left
  7 - right
  8 - back
+
  -1 - forward */
+
+#define DIR_EAST 1
+#define DIR_WEST 2
+#define DIR_SOUTH 3
+#define DIR_NORTH 4
+
+#define DIR_LEFT 6
+#define DIR_RIGHT 7
+#define DIR_BACK 8
+
+#define DIR_FORWARD -1
 
 bool commingBack = false;
 
@@ -80,8 +93,10 @@ int index_ = 0;
 int path[10000];
 int shortest_path[TOTAL];
 int filtered_path[TOTAL];
+int fast_run_commands[TOTAL];
 int shortest_path_size = TOTAL;
 int filtered_path_size = 0;
+int fast_run_commands_size = 0;
 
 void push_button_isr()
 {
@@ -444,6 +459,30 @@ void flood_fill(int current)
     }
 }
 
+int get_relative_direction(int cell1, int cell2)
+{
+    get_coordinates(cell1);
+    int r1 = coordinates[0];
+    int c1 = coordinates[1];
+    get_coordinates(cell2);
+    int r2 = coordinates[0];
+    int c2 = coordinates[1];
+    if (r1 == r2)
+    {
+        if (c1 < c2)
+            return DIR_EAST;
+        else
+            return DIR_WEST;
+    }
+    else
+    {
+        if (r1 < r2)
+            return DIR_SOUTH;
+        else
+            return DIR_NORTH;
+    }
+}
+
 int get_turning_direction(int cur_dir, int new_dir)
 {
     if ((cur_dir == 4 && new_dir == 2) || (cur_dir == 2 && new_dir == 3) || (cur_dir == 3 && new_dir == 1) || (cur_dir == 1 && new_dir == 4))
@@ -500,6 +539,9 @@ void filterPath()
     }
     Serial.println();
 
+    return;
+    // not clear below block
+
     for (int i = filtered_path_size - 2; i > -1; i--)
     {
         get_neighbours(current_cell);
@@ -536,6 +578,61 @@ void filterPath()
     }
     Serial.println("Turn Back");
     current_dir = starting_dir;
+}
+
+void fast_run()
+{
+    int dir1 = starting_dir;
+    int dir2;
+    fast_run_commands_size = 0;
+
+    Serial.println("Shortest path");
+    for (int j = 0; j < shortest_path_size; j++)
+    {
+        Serial.print(shortest_path[j]);
+        Serial.print(" ");
+    }
+
+    for (int i = 0; i < shortest_path_size - 1; i++)
+    {
+        dir2 = get_relative_direction(shortest_path[i], shortest_path[i + 1]);
+        fast_run_commands[fast_run_commands_size++] = get_turning_direction(dir1, dir2);
+        dir1 = dir2;
+    }
+
+    Serial.println("Fast run commands");
+    for (int j = 0; j < fast_run_commands_size; j++)
+    {
+        Serial.print(fast_run_commands[j]);
+        Serial.print(" ");
+    }
+
+    // int i = 0;
+    int tmp_size = 0;
+
+    for (int i = 0; i < fast_run_commands_size; i++)
+    {
+        fast_run_commands[tmp_size] = fast_run_commands[i];
+        if (fast_run_commands[i] == -1)
+        {
+
+            while ((i + 1) < fast_run_commands_size && fast_run_commands[i + 1] == -1)
+            {
+                fast_run_commands[tmp_size]--;
+                i++;
+            }
+        }
+        tmp_size++;
+    }
+
+    fast_run_commands_size = tmp_size;
+
+    Serial.println("Fast run commands");
+    for (int i = 0; i < fast_run_commands_size; i++)
+    {
+        Serial.print(fast_run_commands[i]);
+        Serial.print(" ");
+    }
 }
 
 void followPath2()
@@ -746,12 +843,12 @@ void backToStart()
         Serial.println("New shortest path");
         for (int j = 0; j < filtered_path_size; j++)
         {
-            shortest_path[j] = filtered_path[filtered_path_size-j-1];
+            shortest_path[j] = filtered_path[filtered_path_size - j - 1];
             Serial.print(shortest_path[j]);
             Serial.print(" ");
         }
     }
-   
+
     Serial.println();
 }
 
@@ -850,10 +947,12 @@ void startMouse()
         // update shortest path
 
         filterPath();
-        if(filtered_path_size<shortest_path_size){
+        if (filtered_path_size < shortest_path_size)
+        {
             shortest_path_size = filtered_path_size;
             Serial.println("New shortest path");
-            for (int j = 0; j < filtered_path_size;j++){
+            for (int j = 0; j < filtered_path_size; j++)
+            {
                 shortest_path[j] = filtered_path[j];
                 Serial.print(shortest_path[j]);
                 Serial.print(" ");
@@ -883,7 +982,6 @@ void startMouse()
         // Serial.println(" ");
     }
 }
-
 
 void updateMD(int img_starting_cell, int img_starting_dir)
 {
@@ -960,6 +1058,8 @@ void setup()
     attachInterrupt(PUSH_BUTTON_PIN, push_button_isr, FALLING);
 
     startMouse();
+    Serial.println("Search END");
+    fast_run();
 }
 
 void loop()
