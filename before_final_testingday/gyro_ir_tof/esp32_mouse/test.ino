@@ -1,11 +1,11 @@
 void fast_run_test(){
  mpu.update();
  globle_theta= mpu.getAngleZ();
- SerialBT.println("Give value for cellCountFast:");
- cellCountFast = BTreadInt();
+// SerialBT.println("Give value for cellCountFast:");
+// cellCountFast = BTreadInt();
  blinkLED(1);
- int commands_size = 15;
- int commands[commands_size] = {-6,DIR_LEFT,-3,DIR_LEFT,-4,DIR_LEFT,-1,DIR_RIGHT,-1,DIR_LEFT,-2,DIR_RIGHT,-1,DIR_LEFT,DIR_LEFT}; 
+ int commands_size = 3;
+ int commands[commands_size] = {-1,DIR_RIGHT,-2}; 
  for (int i = 0; i < commands_size; i++)
     {
         // Serial.print(fast_run_commands[i]);
@@ -176,6 +176,10 @@ void tofTest(){
   
 void blinkLED(int x){
   for(int j=0;j<x;j++){digitalWrite(2,HIGH);delay(1000);digitalWrite(2,LOW);delay(1000);}
+  }
+
+void longBeep(int x){
+  digitalWrite(2,HIGH);delay(x*1000);digitalWrite(2,LOW);delay(500);
   }
 
 int BTreadInt(){

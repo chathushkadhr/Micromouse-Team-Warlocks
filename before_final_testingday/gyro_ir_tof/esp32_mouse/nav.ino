@@ -395,12 +395,15 @@ void flood_fill(int maze[][4], int current)
             // Serial.print(" Q appended ");
             for (int i = 0; i < available_neighbours_length; i++)
             {
-                if(queue_end>(MAX_QUEUE_INDEX-10)){
-                    while(PUSH_BUTTON1==false){blinkLED(1);}
+                if (queue_end > (MAX_QUEUE_INDEX - 10))
+                {
+                    while (PUSH_BUTTON1 == false)
+                    {
+                        blinkLED(1);
+                    }
                     return;
                 }
                 enqueue(available_neighbours[i].cell_number);
-
             }
             // Serial.println("");
         }
@@ -582,6 +585,7 @@ void fast_run()
     }
 
     fast_run_commands_size = tmp_size;
+    Buzz(startTone);
 
     // Serial.println("Fast run commands");
     for (int i = 0; i < fast_run_commands_size; i++)
@@ -589,27 +593,33 @@ void fast_run()
         // Serial.print(fast_run_commands[i]);
         // Serial.print(" ");
         int f_cmd = fast_run_commands[i];
-        if(f_cmd<0){
+        if (f_cmd < 0)
+        {
             f_cmd = -f_cmd;
-            for(int i=0;i<f_cmd;i++){
-                if (i==f_cmd-1){
-                goCellFast(true);
+            for (int i = 0; i < f_cmd; i++)
+            {
+                if (i == f_cmd - 1)
+                {
+                    goCellFast(true);
                 }
-                else{
-                  goCellFast(false);
+                else
+                {
+                    goCellFast(false);
                 }
             }
         }
-        else if(f_cmd==DIR_LEFT){
+        else if (f_cmd == DIR_LEFT)
+        {
             turn_align(1);
         }
-        else if(f_cmd==DIR_RIGHT){
+        else if (f_cmd == DIR_RIGHT)
+        {
             turn_align(-1);
         }
-        else{
+        else
+        {
             // dont remove;
         }
-        
 
         if (PUSH_BUTTON1) // SEARCH
         {
@@ -766,7 +776,7 @@ void backToStart()
 
 void startMouse()
 {
-    for (int it = 0; it < 10; it++)
+    for (int it = 0; it < 50; it++)
     {
         stop_motors();
 
@@ -777,6 +787,33 @@ void startMouse()
         {
             delay(DEBOUNCE_DELAY);
             PUSH_BUTTON1 = false;
+            blinkLED(1);
+            while (PUSH_BUTTON1 == false && PUSH_BUTTON2 == false)
+                delay(100);
+
+            if (PUSH_BUTTON1) // Continue
+            {
+                delay(DEBOUNCE_DELAY);
+                PUSH_BUTTON1 = false;
+            }
+            else if (PUSH_BUTTON2) // Restore Backup
+            {
+                delay(DEBOUNCE_DELAY);
+                PUSH_BUTTON2 = false;
+
+                // restore
+
+                memcpy(final_maze, backup_final_maze, sizeof(backup_final_maze));          // CSA
+                memcpy(final_md, backup_final_md, sizeof(backup_final_md));                // CSA
+                memcpy(final_rev_md, backup_final_rev_md, sizeof(backup_final_rev_md));    // CSA
+                memcpy(shortest_path, backup_shortest_path, sizeof(backup_shortest_path)); // CSA
+                shortest_path_size = backup_shortest_path_size;
+                longBeep(2);
+            }
+            else
+            {
+                // dont remove;
+            }
         }
         else if (PUSH_BUTTON2) // FAST
         {
@@ -790,7 +827,14 @@ void startMouse()
         }
         Buzz(startTone);
         memcpy(tmp_maze_forward, final_maze, sizeof(final_maze)); // CSA
-        memcpy(md, final_md, sizeof(final_md));                   // CSA
+        memcpy(md, final_md, sizeof(final_md));
+
+        // Backup
+        memcpy( backup_final_maze,final_maze, sizeof(backup_final_maze));          // CSA
+        memcpy( backup_final_md,final_md, sizeof(backup_final_md));                // CSA
+        memcpy( backup_final_rev_md,final_rev_md, sizeof(backup_final_rev_md));    // CSA
+        memcpy( backup_shortest_path,shortest_path, sizeof(backup_shortest_path)); // CSA
+        backup_shortest_path_size=shortest_path_size;
 
         commingBack = false;
         updateMD(tmp_maze_forward, starting_cell, starting_dir);

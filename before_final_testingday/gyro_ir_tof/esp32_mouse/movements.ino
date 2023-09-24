@@ -840,6 +840,10 @@ void goCellFast(bool last_cell){
 
   int maxpwm = 420;
   int midpwm = 330;
+  
+  int cellCountFast = 280;
+
+  
   count1 = 0; count2 = 0;
   mpu.update();
 
@@ -847,6 +851,11 @@ void goCellFast(bool last_cell){
   float IR_prev_r = readIR2(rightIR);
   
   while((count1 + count2)/2<cellCountFast){ 
+
+    if(last_cell && ((count1 + count2)/2)>190){
+      cellCountFast = 230;
+    }
+    
     float ir_error =0;
 
     float l= readIR(leftIR);
@@ -966,3 +975,127 @@ void goCellFast(bool last_cell){
 //    delay(10);   
 
 }
+
+
+
+void goCellDevelIRIfBrake(){
+ 
+  count1 = 0; count2 = 0;
+  mpu.update();
+
+  float IR_prev_l = readIR2(leftIR);
+  float IR_prev_r = readIR2(rightIR);
+  
+  cellCount = 230;
+
+  bool should_break = true;  
+  while((count1 + count2)/2<cellCount){ 
+    float ir_error =0;
+
+    float l= readIR(leftIR);
+    float r= readIR(rightIR);
+
+    if( (l<IR_THRESH && r<IR_THRESH) && ((count1 + count2)/2)>220 ){
+      cellCount = 280;
+      should_break = false;
+    }
+    
+    if ( ( (IR_prev_l<IR_THRESH)&&(l>IR_THRESH) )  || ( (IR_prev_r<IR_THRESH)&&(r>IR_THRESH) )    ){
+      need_break = 0;
+      breakNow2(120);
+      delay(2);
+      Buzz(cellTone);
+      return;
+    } 
+
+    if ( (l < IR_THRESH)&&(r < IR_THRESH) ){
+      if(l>r){ir_error = l - ir_left_distance; }
+      else{ir_error = ir_right_distance - r; }
+    }
+
+    else{
+      if (l < IR_THRESH){
+        ir_error = l - ir_left_distance;
+      }
+      else if(r < IR_THRESH){
+      ir_error = ir_right_distance - r;
+      }
+    }
+    if (abs(ir_error)<1){ir_error = 0;}
+    
+    mpu.update();
+    float error = (mpu.getAngleZ() - globle_theta) + ir_error*k_ir ;
+    
+    float speedR =  midpwm  - (kp_gyro*error + kd_gyro*(error - pre_error)) ;  
+    float speedL =  midpwm  + (kp_gyro*error + kd_gyro*(error - pre_error)) ;  
+  
+    if (speedR < minpwm){speedR = minpwm;}else if(speedR > maxpwm){speedR = maxpwm;}else{speedR = (int)speedR;}
+    if (speedL < minpwm){speedL = minpwm;}else if(speedL > maxpwm){speedL = maxpwm;}else{speedL = (int)speedL;}
+    
+  
+  
+    ledcWrite(PWMm1a,0);
+    ledcWrite(PWMm1b,speedL);
+    ledcWrite(PWMm2a,0);
+    ledcWrite(PWMm2b,speedR);
+   
+    delay(2); 
+    pre_error = error;
+
+    
+    float f = (readTOF(frontTOF));
+
+    if (f<140){
+      float speed_front = 0;
+      
+      while(true){
+          mpu.update();
+          float error_front = 0;
+          float pre_error_front = 0;
+          while(true){
+            if ( abs(f-38) <2){break;}
+            
+            error_front = (f - 38);
+          
+            speed_front =  (kp_front_tof*error_front + kd_front_tof*(error_front - pre_error_front)) ;  
+    
+          
+            if (speed_front < -1*maxpwm){speed_front = -1*maxpwm;}
+            if (speed_front > maxpwm){speed_front = maxpwm;}
+
+            if (abs(speed_front)<minpwm){speed_front = minpwm * (speed_front/abs(speed_front));}
+            
+            speed_front = (int)speed_front;
+          
+            if (speed_front>0){
+              ledcWrite(PWMm1a,0);
+              ledcWrite(PWMm1b,speed_front);
+              ledcWrite(PWMm2a,0);
+              ledcWrite(PWMm2b,speed_front);         
+            }
+            else{
+              ledcWrite(PWMm1a,-1*speed_front);
+              ledcWrite(PWMm1b,0);
+              ledcWrite(PWMm2a,-1*speed_front);
+              ledcWrite(PWMm2b,0);
+            }
+            delay(2);
+            
+            pre_error_front = error_front;
+            f = (readTOF(frontTOF));   
+        } 
+        f = (readTOF(frontTOF));
+        if (abs(f-38) <2){break;}       
+      }
+      
+      ledcWrite(PWMm1a,0);
+      ledcWrite(PWMm1b,0);
+      ledcWrite(PWMm2a,0);
+      ledcWrite(PWMm2b,0);
+      delay(10); 
+      Buzz(cellTone);
+      need_break = 0;
+      return;
+    }
+       
+  }  
