@@ -1428,8 +1428,8 @@ void goCellFast(bool last_cell)
 
 void goCellDevelIRIfBrake()
 {
-  int maxpwm = 400;
-  int midpwm = 320;
+  int maxpwm = 500;
+  int midpwm = 370;
 
   count1 = 0;
   count2 = 0;
